@@ -1,0 +1,9 @@
+preset: psr2
+
+finder:
+    exclude:
+        - "resources"
+        - "vendor"
+
+enabled:
+    - short_array_syntax
