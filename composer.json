@@ -1,6 +1,6 @@
 {
   "name": "mortola/behat-seo-contexts",
-  "description": "Behat extension for testing common website SEO related aspects.",
+  "description": "Behat extension for testing some On-Page SEO factors: meta title/description, canonical, hreflang, meta robots, robots.txt, redirects, sitemap validation, HTML validation, performance...",
   "keywords": [
     "BDD",
     "Behat",
@@ -9,8 +9,9 @@
     "HTML validation",
     "Sitemap validation",
     "Robots validation",
-    "Hreflang",
-    "Redirects"
+    "Hreflang checker",
+    "Redirects",
+    "Canonicalization"
   ],
   "homepage": "https://github.com/mortola/behat-seo-contexts",
   "type": "library",
