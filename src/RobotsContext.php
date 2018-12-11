@@ -70,7 +70,10 @@ class RobotsContext extends BaseContext
         Assert::assertEquals(
             1,
             count($sitemaps),
-            sprintf('Crawler with User-Agent %s has find more than 1 sitemap url in robots file.', $this->crawlerUserAgent)
+            sprintf(
+                'Crawler with User-Agent %s has find more than 1 sitemap url in robots file.',
+                $this->crawlerUserAgent
+            )
         );
 
         try {

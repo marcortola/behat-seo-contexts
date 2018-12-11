@@ -23,14 +23,14 @@ class HTMLContext extends BaseContext
 
         foreach ($validatorServices as $validatorService) {
             try {
-                $validator       = new Validator($validatorService);
+                $validator = new Validator($validatorService);
                 $validatorResult = $validator->validateDocument($pageHtmlContent);
                 break;
             } catch (\Exception $e) {
             }
         }
 
-        if ( ! isset($validatorResult)) {
+        if (!isset($validatorResult)) {
             throw new \Exception('HTML validation services are not working.');
         }
 

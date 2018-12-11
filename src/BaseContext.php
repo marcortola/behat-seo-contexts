@@ -58,8 +58,8 @@ class BaseContext extends RawMinkContext
     protected function spin(callable $closure, $seconds = 5)
     {
         $fraction = 4;
-        $max      = $seconds * $fraction;
-        $i        = 1;
+        $max = $seconds * $fraction;
+        $i = 1;
         while ($i++ <= $max) {
             if ($closure($this)) {
                 return true;
@@ -132,7 +132,7 @@ class BaseContext extends RawMinkContext
     }
 
     /**
-     * @param array driverClasses
+     * @param array $driverClasses
      * @param bool $supported
      *
      * @throws UnsupportedDriverActionException
@@ -148,12 +148,12 @@ class BaseContext extends RawMinkContext
             }
         }
 
-        if ($supported && ! $isSearchedDriver) {
+        if ($supported && !$isSearchedDriver) {
             throw new UnsupportedDriverActionException(
                 sprintf('This step is only supported by the %s driver', implode(',', $driverClasses)),
                 $driver
             );
-        } elseif ( ! $supported && $isSearchedDriver) {
+        } elseif (!$supported && $isSearchedDriver) {
             throw new UnsupportedDriverActionException(
                 sprintf('This step is not supported by the %s driver', implode(',', $driverClasses)),
                 $driver

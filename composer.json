@@ -29,7 +29,8 @@
     "behat/mink-goutte-driver": "^1.0",
     "behat/mink-browserkit-driver": "^1.0",
     "behat/mink-selenium2-driver": "^1.0",
-    "behat/symfony2-extension": "^2.0"
+    "behat/symfony2-extension": "^2.0",
+    "symplify/easy-coding-standard": "^5.2"
   },
   "autoload": {
     "psr-4": {
@@ -42,5 +43,8 @@
       "name": "Marc Ortola",
       "homepage": "https://github.com/mortola/"
     }
-  ]
+  ],
+  "scripts": {
+    "test-cs": "vendor/bin/ecs check src"
+  }
 }

@@ -7,9 +7,9 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 class SitemapContext extends BaseContext
 {
-    const SITEMAP_SCHEMA_FILE = __DIR__.'/../resources/fixtures/schemas/sitemap.xsd';
-    const SITEMAP_XHTML_SCHEMA_FILE = __DIR__.'/../resources/fixtures/schemas/sitemap_xhtml.xsd';
-    const SITEMAP_INDEX_SCHEMA_FILE = __DIR__.'/../resources/fixtures/schemas/sitemap_index.xsd';
+    const SITEMAP_SCHEMA_FILE = __DIR__ . '/../resources/fixtures/schemas/sitemap.xsd';
+    const SITEMAP_XHTML_SCHEMA_FILE = __DIR__ . '/../resources/fixtures/schemas/sitemap_xhtml.xsd';
+    const SITEMAP_INDEX_SCHEMA_FILE = __DIR__ . '/../resources/fixtures/schemas/sitemap_index.xsd';
 
     /**
      * @var \DOMDocument
@@ -155,7 +155,7 @@ class SitemapContext extends BaseContext
         $this->assertSitemapHasBeenRead();
 
         $sitemapChildrenCount = $this->getXpathInspector()
-                                     ->query('/*[self::sm:sitemapindex or self::sm:urlset]/*[self::sm:sitemap or self::sm:url]/sm:loc')
+            ->query('/*[self::sm:sitemapindex or self::sm:urlset]/*[self::sm:sitemap or self::sm:url]/sm:loc')
             ->length;
 
         Assert::assertEquals(

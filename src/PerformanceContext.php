@@ -9,15 +9,15 @@ use PHPUnit\Framework\Assert;
 class PerformanceContext extends BaseContext
 {
     const RESOURCE_TYPES = [
-        'PNG'             => 'png',
-        'HTML'            => 'html',
-        'JPEG'            => 'jpeg',
-        'GIF'             => 'gif',
-        'ICO'             => 'ico',
-        'JAVASCRIPT'      => 'js',
-        'CSS'             => 'css',
+        'PNG' => 'png',
+        'HTML' => 'html',
+        'JPEG' => 'jpeg',
+        'GIF' => 'gif',
+        'ICO' => 'ico',
+        'JAVASCRIPT' => 'js',
+        'CSS' => 'css',
         'CSS_INLINE_HEAD' => 'css-inline-head',
-        'CSS_LINK_HEAD'   => 'css-link-head',
+        'CSS_LINK_HEAD' => 'css-link-head',
     ];
 
     /**
@@ -62,8 +62,8 @@ class PerformanceContext extends BaseContext
 
     /**
      * @param string $resourceType
-     * @param bool   $selfHosted
-     * @param bool   $expected
+     * @param bool $selfHosted
+     * @param bool $expected
      *
      * @return NodeElement[]
      * @throws \Exception
@@ -112,7 +112,7 @@ class PerformanceContext extends BaseContext
         if (true === $selfHosted) {
             $xpath = preg_replace(
                 '/\[contains\(@(.*),/',
-                '[(starts-with(@$1,"'.$this->webUrl.'") or starts-with(@$1,"/")) and contains(@$1,',
+                '[(starts-with(@$1,"' . $this->webUrl . '") or starts-with(@$1,"/")) and contains(@$1,',
                 $xpath
             );
         }
@@ -136,7 +136,7 @@ class PerformanceContext extends BaseContext
 
     /**
      * @param NodeElement $element
-     * @param string      $resourceType
+     * @param string $resourceType
      *
      * @return string
      * @throws \Exception
@@ -170,7 +170,7 @@ class PerformanceContext extends BaseContext
      */
     private function assertResourceTypeIsValid($resourceType)
     {
-        if ( ! in_array($resourceType, self::RESOURCE_TYPES)) {
+        if (!in_array($resourceType, self::RESOURCE_TYPES)) {
             throw new \InvalidArgumentException(
                 sprintf(
                     '%s resource type is not valid. Allowed types are: %s',

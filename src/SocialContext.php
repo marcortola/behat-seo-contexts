@@ -23,7 +23,7 @@ class SocialContext extends BaseContext
         $this->getSession()->switchToIFrame($facebookIframe->getAttribute('name'));
 
         $this->spin(
-            function () use ($expectedText, $facebookIframe) {
+            function () use ($expectedText) {
                 try {
                     $facebookIframeContent = $this->getSession()->getPage()->getContent();
 
@@ -139,7 +139,7 @@ class SocialContext extends BaseContext
     private function getOGMetaContent($property)
     {
         $xpath = sprintf('//head/meta[@property="%1$s" or @name="%1$s"]', $property);
-        $meta  = $this->getSession()->getPage()->find('xpath', $xpath);
+        $meta = $this->getSession()->getPage()->find('xpath', $xpath);
 
         Assert::assertNotNull(
             $meta,
