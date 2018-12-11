@@ -7,9 +7,9 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 class SitemapContext extends BaseContext
 {
-    const SITEMAP_SCHEMA_FILE = __DIR__ . '/../resources/fixtures/schemas/sitemap.xsd';
-    const SITEMAP_XHTML_SCHEMA_FILE = __DIR__ . '/../resources/fixtures/schemas/sitemap_xhtml.xsd';
-    const SITEMAP_INDEX_SCHEMA_FILE = __DIR__ . '/../resources/fixtures/schemas/sitemap_index.xsd';
+    const SITEMAP_SCHEMA_FILE = __DIR__.'/../resources/fixtures/schemas/sitemap.xsd';
+    const SITEMAP_XHTML_SCHEMA_FILE = __DIR__.'/../resources/fixtures/schemas/sitemap_xhtml.xsd';
+    const SITEMAP_INDEX_SCHEMA_FILE = __DIR__.'/../resources/fixtures/schemas/sitemap_index.xsd';
 
     /**
      * @var \DOMDocument
@@ -17,16 +17,28 @@ class SitemapContext extends BaseContext
     private $sitemapXml;
 
     /**
-     * @param $sitemapType
      * @param $sitemapUrl
      *
      * @throws \Exception
      *
-     * @Given /^the (index|multilanguage|) sitemap "(.*)"$/
+     * @Given the sitemap :sitemapUrl
      */
-    public function theSitemap($sitemapType, $sitemapUrl)
+    public function theSitemap($sitemapUrl)
     {
         $this->sitemapXml = $this->getSitemapXml($sitemapUrl);
+    }
+
+    /**
+     * @param string $sitemapType
+     *
+     * @throws \Exception
+     *
+     * @Then /^the sitemap should be a valid (index |multilanguage |)sitemap$/
+     */
+    public function theSitemapShouldBeAValidSitemap($sitemapType = '')
+    {
+        $sitemapType = trim($sitemapType);
+        $this->assertSitemapHasBeenRead();
 
         switch ($sitemapType) {
             case 'index':
@@ -39,8 +51,6 @@ class SitemapContext extends BaseContext
                 break;
             default:
                 $sitemapSchemaFile = self::SITEMAP_SCHEMA_FILE;
-
-                break;
         }
 
         $this->assertValidSitemap($sitemapSchemaFile);
@@ -155,7 +165,7 @@ class SitemapContext extends BaseContext
         $this->assertSitemapHasBeenRead();
 
         $sitemapChildrenCount = $this->getXpathInspector()
-            ->query('/*[self::sm:sitemapindex or self::sm:urlset]/*[self::sm:sitemap or self::sm:url]/sm:loc')
+                                     ->query('/*[self::sm:sitemapindex or self::sm:urlset]/*[self::sm:sitemap or self::sm:url]/sm:loc')
             ->length;
 
         Assert::assertEquals(

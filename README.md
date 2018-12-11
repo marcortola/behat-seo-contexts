@@ -77,7 +77,8 @@ Then /^I (?:am|should be) redirected(?: to "([^"]*)")?$/
 ```
 ##### SitemapContext
 ```
-Given /^the (index|multilanguage|) sitemap "(.*)"$/
+Given the sitemap :sitemapUrl
+Then /^the sitemap should be a valid (index |multilanguage |)sitemap$/
 Then the index sitemap should have child :childSitemapUrl
 Then /^the sitemap has ([0-9]+) children$/
 Then the multilanguage sitemap pass Google validation
