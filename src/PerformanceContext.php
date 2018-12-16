@@ -30,8 +30,33 @@ class PerformanceContext extends BaseContext
     public function browserCacheMustBeEnabledForResources($resourceType)
     {
         $this->supportsSymfony(false);
+        $this->checkResourceCache($resourceType, false);
+        $this->getSession()->back();
+    }
 
-        $element = $this->getPageResources($resourceType);
+    /**
+     * @param string $resourceType
+     *
+     * @throws \Exception
+     *
+     * @Then /^browser cache must be enabled for (png|jpeg|gif|ico|js|css) self hosted resources$/
+     */
+    public function browserCacheMustBeEnabledForSelfHostedResources($resourceType)
+    {
+        $this->supportsSymfony(false);
+        $this->checkResourceCache($resourceType, true);
+        $this->getSession()->back();
+    }
+
+    /**
+     * @param string $resourceType
+     * @param bool $selfHosted
+     *
+     * @throws \Exception
+     */
+    private function checkResourceCache($resourceType, $selfHosted)
+    {
+        $element = $this->getPageResources($resourceType, $selfHosted);
         $element = count($element) ? current($element) : null;
 
         $elementUrl = $this->getResourceUrl($element, $resourceType);
@@ -56,8 +81,6 @@ class PerformanceContext extends BaseContext
                 $resourceType
             )
         );
-
-        $this->getSession()->back();
     }
 
     /**
