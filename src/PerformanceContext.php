@@ -21,6 +21,22 @@ class PerformanceContext extends BaseContext
     ];
 
     /**
+     * @param string $host
+     * @param string $resourceType
+     *
+     * @throws UnsupportedDriverActionException
+     * @throws \Exception
+     * @Then /^browser cache must be enabled from "([^"]*)" (png|jpeg|gif|ico|js|css) resources$/
+     */
+    public function browserCacheMustBeEnabledFromResources($host, $resourceType)
+    {
+        $this->supportsSymfony(false);
+        $elements = $this->getPageResources($resourceType, false, true, $host);
+        $this->checkResourceCache($elements[array_rand($elements)], $resourceType);
+        $this->getSession()->back();
+    }
+
+    /**
      * @param string $resourceType
      *
      * @throws \Exception
@@ -30,7 +46,8 @@ class PerformanceContext extends BaseContext
     public function browserCacheMustBeEnabledForResources($resourceType)
     {
         $this->supportsSymfony(false);
-        $this->checkResourceCache($resourceType, false);
+        $elements = $this->getPageResources($resourceType, false);
+        $this->checkResourceCache(current($elements), $resourceType);
         $this->getSession()->back();
     }
 
@@ -44,21 +61,19 @@ class PerformanceContext extends BaseContext
     public function browserCacheMustBeEnabledForSelfHostedResources($resourceType)
     {
         $this->supportsSymfony(false);
-        $this->checkResourceCache($resourceType, true);
+        $elements = $this->getPageResources($resourceType, true);
+        $this->checkResourceCache(current($elements), true);
         $this->getSession()->back();
     }
 
     /**
+     * @param        $element
      * @param string $resourceType
-     * @param bool $selfHosted
      *
      * @throws \Exception
      */
-    private function checkResourceCache($resourceType, $selfHosted)
+    private function checkResourceCache($element, $resourceType)
     {
-        $element = $this->getPageResources($resourceType, $selfHosted);
-        $element = count($element) ? current($element) : null;
-
         $elementUrl = $this->getResourceUrl($element, $resourceType);
 
         $this->getSession()->visit($elementUrl);
@@ -85,13 +100,15 @@ class PerformanceContext extends BaseContext
 
     /**
      * @param string $resourceType
-     * @param bool $selfHosted
-     * @param bool $expected
+     * @param bool   $selfHosted
+     * @param bool   $expected
+     *
+     * @param null   $host
      *
      * @return NodeElement[]
      * @throws \Exception
      */
-    private function getPageResources($resourceType, $selfHosted = true, $expected = true)
+    private function getPageResources($resourceType, $selfHosted = true, $expected = true, $host = null)
     {
         switch ($resourceType) {
             case self::RESOURCE_TYPES['JPEG']:
@@ -140,6 +157,14 @@ class PerformanceContext extends BaseContext
             );
         }
 
+        if (null !== $host) {
+            $xpath = preg_replace(
+                '/\[contains\(@(.*),/',
+                '[(starts-with(@$1,"' . $host . '") or starts-with(@$1,"/")) and contains(@$1,',
+                $xpath
+            );
+        }
+
         $elements = $this->getSession()->getPage()->findAll('xpath', $xpath);
 
         if (true === $expected) {
@@ -149,7 +174,7 @@ class PerformanceContext extends BaseContext
                     'No%s %s files are found in %s',
                     $selfHosted ? ' self hosted' : '',
                     $resourceType,
-                    $this->getCurrentUrl()
+                    $host ?: $this->getCurrentUrl()
                 )
             );
         }
