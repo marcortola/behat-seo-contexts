@@ -259,4 +259,54 @@ class SitemapContext extends BaseContext
             );
         }
     }
+    
+        /**
+     * @param int $randomUrlsCount
+     *
+     * @throws \Exception
+     *
+     * @Then /^([0-9]+) random sitemap URLs are alive$/
+     */
+    public function randomSitemapUrlsAreAlive($randomUrlsCount)
+    {
+        $this->assertSitemapHasBeenRead();
+
+        $locNodes = $this->getXpathInspector()->query('//sm:urlset/sm:url/sm:loc');
+
+        if ($randomUrlsCount > $locNodes->length) {
+            throw new \Exception(
+                'Given number is too high. The sitemap contains of only ' . $locNodes->length . ' URLs.'
+            );
+        }
+
+        for ($i = 1; $i <= $randomUrlsCount; $i++) {
+
+            /** @var \DOMElement $locNode */
+            $locNode = $locNodes[rand(0, $randomUrlsCount - 1)];
+
+            try {
+                $this->visit($locNode->nodeValue);
+            } catch (RouteNotFoundException $e) {
+                throw new \Exception(
+                    sprintf(
+                        'Sitemap Url %s is not valid in Sitemap: %s. Exception: %s',
+                        $locNode->nodeValue,
+                        $this->sitemapXml->documentURI,
+                        $e->getMessage()
+                    )
+                );
+            }
+
+            Assert::assertEquals(
+                200,
+                $this->getStatusCode(),
+                sprintf(
+                    'Sitemap Url %s is not valid in Sitemap: %s. Response status code: %s',
+                    $locNode->nodeValue,
+                    $this->sitemapXml->documentURI,
+                    $this->getStatusCode()
+                )
+            );
+        }
+    }
 }
