@@ -257,17 +257,9 @@ class PerformanceContext extends BaseContext
      */
     private function minimizeHtml($html)
     {
-        return preg_replace_callback(
-            '#<([^\/\s<>!]+)(?:\s+([^<>]*?)\s*|\s*)(\/?)>#s',
-            function ($matches) {
-                $withoutSpaces = preg_replace(
-                    '#([^\s=]+)(\=([\'"]?)(.*?)\3)?(\s+|$)#s',
-                    ' $1$2',
-                    $matches[2]
-                );
-
-                return sprintf('<%s%s%s>', $matches[1], $withoutSpaces, $matches[3]);
-            },
+        return preg_replace(
+            '/(?<=>)\s+|\s+(?=<)/',
+            '',
             $html
         );
     }
