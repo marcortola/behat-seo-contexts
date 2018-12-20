@@ -1,0 +1,27 @@
+default:
+  translation:
+    locale: en
+  suites:
+    default:
+      paths: [ '%paths.base%/tests/features' ]
+      contexts:
+        - MOrtola\BehatSEOContexts\Context\RedirectContext
+        - MOrtola\BehatSEOContexts\Context\RobotsContext
+        - MOrtola\BehatSEOContexts\Context\PerformanceContext
+        - MOrtola\BehatSEOContexts\Context\SocialContext
+        - MOrtola\BehatSEOContexts\Context\MetaContext
+        - MOrtola\BehatSEOContexts\Context\LocalizationContext
+        - MOrtola\BehatSEOContexts\Context\HTMLContext
+        - MOrtola\BehatSEOContexts\Context\SitemapContext
+        - Behat\MinkExtension\Context\MinkContext
+  extensions:
+    Behat\MinkExtension:
+      base_url: 'http://localhost:8080'
+      goutte: ~
+      selenium2: ~
+      browser_name: 'chrome'
+      sessions:
+        default:
+          goutte: ~
+        symfony2:
+          goutte: ~

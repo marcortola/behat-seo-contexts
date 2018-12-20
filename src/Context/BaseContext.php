@@ -1,6 +1,6 @@
 <?php
 
-namespace MOrtola\BehatSEOContexts;
+namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Driver\Selenium2Driver;
@@ -8,6 +8,7 @@ use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Symfony2Extension\Driver\KernelDriver;
+use PHPUnit\Framework\ExpectationFailedException;
 
 class BaseContext extends RawMinkContext
 {
@@ -179,5 +180,20 @@ class BaseContext extends RawMinkContext
     protected function supportsBrowserKitDriver($supported = true)
     {
         $this->supportsDrivers([BrowserKitDriver::class], $supported);
+    }
+
+    /**
+     * @param callable $callableStepDefinition
+     * @param string $exceptionMessage
+     */
+    protected function assertInverse($callableStepDefinition, $exceptionMessage = '')
+    {
+        try {
+            $callableStepDefinition();
+        } catch (ExpectationFailedException $e) {
+            return;
+        }
+
+        throw new ExpectationFailedException($exceptionMessage);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace MOrtola\BehatSEOContexts;
+namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
@@ -21,43 +21,24 @@ class PerformanceContext extends BaseContext
     ];
 
     /**
-     * @param string $resourceType
-     *
      * @throws \Exception
      *
-     * @Then /^browser cache must be enabled for (png|jpeg|gif|ico|js|css) resources$/
+     * @Then /^js should load (async|defer)$/
      */
-    public function browserCacheMustBeEnabledForResources($resourceType)
+    public function javascriptFilesShouldLoadAsync()
     {
-        $this->supportsSymfony(false);
+        $scriptElements = $this->getPageResources(self::RESOURCE_TYPES['JAVASCRIPT']);
 
-        $element = $this->getPageResources($resourceType);
-        $element = count($element) ? current($element) : null;
-
-        $elementUrl = $this->getResourceUrl($element, $resourceType);
-
-        $this->getSession()->visit($elementUrl);
-
-        $responseHeaders = $this->getSession()->getResponseHeaders();
-
-        Assert::assertTrue(
-            isset($responseHeaders['Cache-Control']),
-            sprintf(
-                'Browser cache is not enabled for %s resources. Cache-Control HTTP header was not received.',
-                $resourceType
-            )
-        );
-
-        Assert::assertNotContains(
-            '-no',
-            $responseHeaders['Cache-Control'],
-            sprintf(
-                'Browser cache is not enabled for %s resources. Cache-Control HTTP header is "no-cache".',
-                $resourceType
-            )
-        );
-
-        $this->getSession()->back();
+        foreach ($scriptElements as $scriptElement) {
+            Assert::assertTrue(
+                $scriptElement->hasAttribute('async') || $scriptElement->hasAttribute('defer'),
+                sprintf(
+                    'Javascript file %s is render blocking in %s',
+                    $this->getResourceUrl($scriptElement, self::RESOURCE_TYPES['JAVASCRIPT']),
+                    $this->getCurrentUrl()
+                )
+            );
+        }
     }
 
     /**
@@ -184,33 +165,14 @@ class PerformanceContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then /^js should load (async|defer)$/
-     */
-    public function theJavascriptFilesShouldLoadAsync()
-    {
-        $scriptElements = $this->getPageResources(self::RESOURCE_TYPES['JAVASCRIPT']);
-
-        foreach ($scriptElements as $scriptElement) {
-            Assert::assertTrue(
-                $scriptElement->hasAttribute('async') || $scriptElement->hasAttribute('defer'),
-                sprintf(
-                    'Javascript file %s is render blocking in %s',
-                    $this->getResourceUrl($scriptElement, self::RESOURCE_TYPES['JAVASCRIPT']),
-                    $this->getCurrentUrl()
-                )
-            );
-        }
-    }
-
-    /**
-     * @throws \Exception
-     *
      * @Then /^html should be minimized$/
      */
     public function htmlShouldBeMinimized()
     {
-        $content = $this->getSession()->getPage()->getContent();
-        $this->assertContentIsMinified($content, self::RESOURCE_TYPES['HTML']);
+        $this->assertContentIsMinified(
+            $this->getSession()->getPage()->getContent(),
+            self::RESOURCE_TYPES['HTML']
+        );
     }
 
     /**
@@ -311,32 +273,6 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @param string $resourceType
-     *
-     * @throws \Exception
-     * @throws UnsupportedDriverActionException
-     *
-     * @Then /^(css|js) should be minimized$/
-     */
-    public function cssOrJavascriptFilesShouldBeMinimized($resourceType)
-    {
-        $this->supportsSymfony(false);
-
-        $elements = $this->getPageResources($resourceType);
-
-        foreach ($elements as $element) {
-            $elementUrl = $this->getResourceUrl($element, $resourceType);
-
-            $this->getSession()->visit($elementUrl);
-
-            $content = $this->getSession()->getPage()->getContent();
-            $this->assertContentIsMinified($content, $resourceType);
-
-            $this->getSession()->back();
-        }
-    }
-
-    /**
      * @throws \Exception
      *
      * @Then css should load deferred
@@ -376,6 +312,132 @@ class PerformanceContext extends BaseContext
                 'No inline css is loading in head in %s',
                 $this->getCurrentUrl()
             )
+        );
+    }
+
+    /**
+     * @Then html should not be minimized
+     */
+    public function htmlShouldNotBeMinimized()
+    {
+        $this->assertInverse(
+            [$this, 'htmlShouldBeMinimized'],
+            'HTML should not be minimized.'
+        );
+    }
+
+    /**
+     *
+     * @Then /^(css|js) should not be minimized$/
+     */
+    public function cssOrJavascriptFilesShouldNotBeMinimized($resourceType)
+    {
+        $this->assertInverse(
+            function () use ($resourceType) {
+                $this->cssOrJavascriptFilesShouldBeMinimized($resourceType);
+            },
+            sprintf('%s should not be minimized.', $resourceType)
+        );
+    }
+
+    /**
+     * @param string $resourceType
+     *
+     * @throws \Exception
+     * @throws UnsupportedDriverActionException
+     *
+     * @Then /^(css|js) should be minimized$/
+     */
+    public function cssOrJavascriptFilesShouldBeMinimized($resourceType)
+    {
+        $this->supportsSymfony(false);
+
+        $elements = $this->getPageResources($resourceType);
+
+        foreach ($elements as $element) {
+            $elementUrl = $this->getResourceUrl($element, $resourceType);
+
+            $this->getSession()->visit($elementUrl);
+
+            $content = $this->getSession()->getPage()->getContent();
+            $this->assertContentIsMinified($content, $resourceType);
+
+            $this->getSession()->back();
+        }
+    }
+
+    /**
+     * @Then critical css should not exist in head
+     */
+    public function criticalCssShouldNotExistInHead()
+    {
+        $this->assertInverse(
+            [$this, 'criticalCssShouldExistInHead'],
+            'Critical CSS exist in head.'
+        );
+    }
+
+    /**
+     * @Then /^browser cache must not be enabled for (png|jpeg|gif|ico|js|css) resources$/
+     */
+    public function browserCacheMustNotBeEnabledForCssResources($resourceType)
+    {
+        $this->assertInverse(
+            function () use ($resourceType) {
+                $this->browserCacheMustBeEnabledForResources($resourceType);
+            },
+            sprintf('Browser cache is enabled for %s resources.', $resourceType)
+        );
+    }
+
+    /**
+     * @param string $resourceType
+     *
+     * @throws \Exception
+     *
+     * @Then /^browser cache must be enabled for (png|jpeg|gif|ico|js|css) resources$/
+     */
+    public function browserCacheMustBeEnabledForResources($resourceType)
+    {
+        $this->supportsSymfony(false);
+
+        $element = $this->getPageResources($resourceType);
+        $element = count($element) ? current($element) : null;
+
+        $elementUrl = $this->getResourceUrl($element, $resourceType);
+
+        $this->getSession()->visit($elementUrl);
+
+        $responseHeaders = $this->getSession()->getResponseHeaders();
+
+        Assert::assertTrue(
+            isset($responseHeaders['Cache-Control']),
+            sprintf(
+                'Browser cache is not enabled for %s resources. Cache-Control HTTP header was not received.',
+                $resourceType
+            )
+        );
+
+        Assert::assertNotContains(
+            '-no',
+            $responseHeaders['Cache-Control'],
+            sprintf(
+                'Browser cache is not enabled for %s resources. Cache-Control HTTP header is "no-cache".',
+                $resourceType
+            )
+        );
+
+        $this->getSession()->back();
+    }
+
+    /**
+     * @Then /^js should not load (async|defer)$/
+     */
+    public function jsShouldNotLoadAsyncOr()
+    {
+        $this->assertInverse(
+            [$this, 'javascriptFilesShouldLoadAsync'],
+            'All JS files load async.'
         );
     }
 }

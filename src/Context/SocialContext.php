@@ -1,6 +1,6 @@
 <?php
 
-namespace MOrtola\BehatSEOContexts;
+namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use PHPUnit\Framework\Assert;
@@ -57,6 +57,19 @@ class SocialContext extends BaseContext
         } catch (\Exception $e) {
             throw new \Exception('No facebook comment plugin has been loaded.');
         }
+    }
+
+    /**
+     * @Then /^the (twitter|facebook) open graph data should not satisfy (minimum|full) requirements$/
+     */
+    public function theOpenGraphDataShouldNotSatisfyRequirements($socialNetworkName, $requirementsType)
+    {
+        $this->assertInverse(
+            function () use ($socialNetworkName, $requirementsType) {
+                $this->theOpenGraphDataShouldSatisfyRequirements($socialNetworkName, $requirementsType);
+            },
+            sprintf('The %s OG Data satisfies %s requirements.', $socialNetworkName, $requirementsType)
+        );
     }
 
     /**

@@ -1,15 +1,15 @@
 <?php
 
-namespace MOrtola\BehatSEOContexts;
+namespace MOrtola\BehatSEOContexts\Context;
 
 use PHPUnit\Framework\Assert;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 class SitemapContext extends BaseContext
 {
-    const SITEMAP_SCHEMA_FILE = __DIR__.'/../resources/fixtures/schemas/sitemap.xsd';
-    const SITEMAP_XHTML_SCHEMA_FILE = __DIR__.'/../resources/fixtures/schemas/sitemap_xhtml.xsd';
-    const SITEMAP_INDEX_SCHEMA_FILE = __DIR__.'/../resources/fixtures/schemas/sitemap_index.xsd';
+    const SITEMAP_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap.xsd';
+    const SITEMAP_XHTML_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap_xhtml.xsd';
+    const SITEMAP_INDEX_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap_index.xsd';
 
     /**
      * @var \DOMDocument
@@ -26,34 +26,6 @@ class SitemapContext extends BaseContext
     public function theSitemap($sitemapUrl)
     {
         $this->sitemapXml = $this->getSitemapXml($sitemapUrl);
-    }
-
-    /**
-     * @param string $sitemapType
-     *
-     * @throws \Exception
-     *
-     * @Then /^the sitemap should be a valid (index |multilanguage |)sitemap$/
-     */
-    public function theSitemapShouldBeAValidSitemap($sitemapType = '')
-    {
-        $sitemapType = trim($sitemapType);
-        $this->assertSitemapHasBeenRead();
-
-        switch ($sitemapType) {
-            case 'index':
-                $sitemapSchemaFile = self::SITEMAP_INDEX_SCHEMA_FILE;
-
-                break;
-            case 'multilanguage':
-                $sitemapSchemaFile = self::SITEMAP_XHTML_SCHEMA_FILE;
-
-                break;
-            default:
-                $sitemapSchemaFile = self::SITEMAP_SCHEMA_FILE;
-        }
-
-        $this->assertValidSitemap($sitemapSchemaFile);
     }
 
     /**
@@ -78,28 +50,6 @@ class SitemapContext extends BaseContext
         );
 
         return $xml;
-    }
-
-    /**
-     * @param string $sitemapSchemaFile
-     *
-     * @throws \Exception
-     */
-    private function assertValidSitemap($sitemapSchemaFile)
-    {
-        Assert::assertFileExists(
-            $sitemapSchemaFile,
-            sprintf('Sitemap schema file %s does not exist', $sitemapSchemaFile)
-        );
-
-        Assert::assertTrue(
-            @$this->sitemapXml->schemaValidate($sitemapSchemaFile),
-            sprintf(
-                'Sitemap %s does not pass validation using %s schema',
-                $this->sitemapXml->documentURI,
-                $sitemapSchemaFile
-            )
-        );
     }
 
     /**
@@ -165,7 +115,7 @@ class SitemapContext extends BaseContext
         $this->assertSitemapHasBeenRead();
 
         $sitemapChildrenCount = $this->getXpathInspector()
-                                     ->query('/*[self::sm:sitemapindex or self::sm:urlset]/*[self::sm:sitemap or self::sm:url]/sm:loc')
+            ->query('/*[self::sm:sitemapindex or self::sm:urlset]/*[self::sm:sitemap or self::sm:url]/sm:loc')
             ->length;
 
         Assert::assertEquals(
@@ -222,6 +172,28 @@ class SitemapContext extends BaseContext
     }
 
     /**
+     * @param string $sitemapSchemaFile
+     *
+     * @throws \Exception
+     */
+    private function assertValidSitemap($sitemapSchemaFile)
+    {
+        Assert::assertFileExists(
+            $sitemapSchemaFile,
+            sprintf('Sitemap schema file %s does not exist', $sitemapSchemaFile)
+        );
+
+        Assert::assertTrue(
+            @$this->sitemapXml->schemaValidate($sitemapSchemaFile),
+            sprintf(
+                'Sitemap %s does not pass validation using %s schema',
+                $this->sitemapXml->documentURI,
+                $sitemapSchemaFile
+            )
+        );
+    }
+
+    /**
      * @throws \Exception
      *
      * @Then the sitemap URLs are alive
@@ -258,5 +230,57 @@ class SitemapContext extends BaseContext
                 )
             );
         }
+    }
+
+    /**
+     * @Then /^the sitemap should not be a valid (index |multilanguage |)sitemap$/
+     */
+    public function theSitemapShouldNotBeAValidSitemap($sitemapType = '')
+    {
+        $this->assertInverse(
+            function () use ($sitemapType) {
+                $this->theSitemapShouldBeAValidSitemap($sitemapType);
+            },
+            sprintf('The sitemap is a valid %s sitemap.', $sitemapType)
+        );
+    }
+
+    /**
+     * @param string $sitemapType
+     *
+     * @throws \Exception
+     *
+     * @Then /^the sitemap should be a valid (index |multilanguage |)sitemap$/
+     */
+    public function theSitemapShouldBeAValidSitemap($sitemapType = '')
+    {
+        $sitemapType = trim($sitemapType);
+        $this->assertSitemapHasBeenRead();
+
+        switch ($sitemapType) {
+            case 'index':
+                $sitemapSchemaFile = self::SITEMAP_INDEX_SCHEMA_FILE;
+
+                break;
+            case 'multilanguage':
+                $sitemapSchemaFile = self::SITEMAP_XHTML_SCHEMA_FILE;
+
+                break;
+            default:
+                $sitemapSchemaFile = self::SITEMAP_SCHEMA_FILE;
+        }
+
+        $this->assertValidSitemap($sitemapSchemaFile);
+    }
+
+    /**
+     * @Then the multilanguage sitemap should not pass Google validation
+     */
+    public function theMultilanguageSitemapShouldNotPassGoogleValidation()
+    {
+        $this->assertInverse(
+            [$this, 'theMultilanguageSitemapPassGoogleValidation'],
+            sprintf('The multilanguage sitemap pass Google validation.')
+        );
     }
 }

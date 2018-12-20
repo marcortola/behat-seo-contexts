@@ -1,6 +1,6 @@
 <?php
 
-namespace MOrtola\BehatSEOContexts;
+namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Element\NodeElement;
 use Matriphe\ISO639\ISO639;
@@ -33,6 +33,10 @@ class LocalizationContext extends BaseContext
         /** @var NodeElement $hreflangMetaTag */
         foreach ($hreflangMetaTags as $hreflangMetaTag) {
             $alternateLocale = $hreflangMetaTag->getAttribute('hreflang');
+
+            if ('x-default' === $alternateLocale) {
+                continue;
+            }
 
             Assert::assertNotEmpty(
                 $localeIsoValidator->languageByCode1($alternateLocale),
@@ -72,6 +76,19 @@ class LocalizationContext extends BaseContext
         Assert::assertTrue(
             $selfReferenceFound,
             sprintf('No self-referencing hreflang meta tag has been found in %s', $currentUrl)
+        );
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @Then the page hreflang markup should not be valid
+     */
+    public function thePageHreflangMarkupShouldNotBeValid()
+    {
+        $this->assertInverse(
+            [$this, 'thePageHreflangMarkupShouldBeValid'],
+            'HTML markup should not be valid.'
         );
     }
 }

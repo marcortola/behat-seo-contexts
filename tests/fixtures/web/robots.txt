@@ -1,0 +1,12 @@
+User-agent: *
+Disallow: /only-google/
+Disallow: /*?
+
+User-agent: Googlebot
+Disallow: /*?
+Allow: /only-google/
+
+User-agent: BadBot
+Disallow: /
+
+Sitemap: http://localhost:8080/sitemap/standard-sitemap.xml

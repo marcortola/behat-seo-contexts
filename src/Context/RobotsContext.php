@@ -1,6 +1,6 @@
 <?php
 
-namespace MOrtola\BehatSEOContexts;
+namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use PHPUnit\Framework\Assert;
@@ -96,6 +96,17 @@ class RobotsContext extends BaseContext
     }
 
     /**
+     * @Then the page should be noindex
+     */
+    public function thePageShouldBeNoindex()
+    {
+        $this->assertInverse(
+            [$this, 'thePageShouldNotBeNoindex'],
+            'The page is indexable.'
+        );
+    }
+
+    /**
      * @throws \Exception
      *
      * @Then the page should not be noindex
@@ -119,16 +130,6 @@ class RobotsContext extends BaseContext
                     $metaRobotsElement->getOuterHtml()
                 )
             );
-
-            Assert::assertNotContains(
-                'nofollow',
-                strtolower($metaRobots),
-                sprintf(
-                    'Url %s should not have meta robots with nofollow value: %s',
-                    $this->getCurrentUrl(),
-                    $metaRobotsElement->getOuterHtml()
-                )
-            );
         }
 
         $robotsHeaderTag = $this->getSession()->getResponseHeader('X-Robots-Tag');
@@ -139,16 +140,6 @@ class RobotsContext extends BaseContext
                 strtolower($robotsHeaderTag),
                 sprintf(
                     'Url %s should not send X-Robots-Tag HTTP header with noindex value: %s',
-                    $this->getCurrentUrl(),
-                    $robotsHeaderTag
-                )
-            );
-
-            Assert::assertNotContains(
-                'nofollow',
-                strtolower($robotsHeaderTag),
-                sprintf(
-                    'Url %s should not send X-Robots-Tag HTTP header with nofollow value: %s',
                     $this->getCurrentUrl(),
                     $robotsHeaderTag
                 )

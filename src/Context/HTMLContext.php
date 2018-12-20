@@ -1,8 +1,9 @@
 <?php
 
-namespace MOrtola\BehatSEOContexts;
+namespace MOrtola\BehatSEOContexts\Context;
 
 use HtmlValidator\Validator;
+use PHPUnit\Framework\ExpectationFailedException;
 
 class HTMLContext extends BaseContext
 {
@@ -37,7 +38,7 @@ class HTMLContext extends BaseContext
         $htmlErrors = $validatorResult->getErrors();
 
         if (isset($htmlErrors[0])) {
-            throw new \Exception(
+            throw new ExpectationFailedException(
                 sprintf(
                     'HTML markup validation error: Line %s: "%s" - %s in %s',
                     $htmlErrors[0]->getFirstLine(),
@@ -47,5 +48,18 @@ class HTMLContext extends BaseContext
                 )
             );
         }
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @Then the page HTML markup should not be valid
+     */
+    public function thePageHtmlMarkupShouldNotBeValid()
+    {
+        $this->assertInverse(
+            [$this, 'thePageHtmlMarkupShouldBeValid'],
+            'HTML markup should not be valid.'
+        );
     }
 }

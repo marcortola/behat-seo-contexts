@@ -41,14 +41,14 @@ default:
     suites:
         default:
           contexts:
-            - MOrtola\BehatSEOContexts\MetaContext
-            - MOrtola\BehatSEOContexts\LocalizationContext
-            - MOrtola\BehatSEOContexts\RobotsContext
-            - MOrtola\BehatSEOContexts\RedirectContext
-            - MOrtola\BehatSEOContexts\SitemapContext
-            - MOrtola\BehatSEOContexts\HTMLContext
-            - MOrtola\BehatSEOContexts\PerformanceContext
-            - MOrtola\BehatSEOContexts\SocialContext
+            - MOrtola\BehatSEOContexts\Context\MetaContext
+            - MOrtola\BehatSEOContexts\Context\LocalizationContext
+            - MOrtola\BehatSEOContexts\Context\RobotsContext
+            - MOrtola\BehatSEOContexts\Context\RedirectContext
+            - MOrtola\BehatSEOContexts\Context\SitemapContext
+            - MOrtola\BehatSEOContexts\Context\HTMLContext
+            - MOrtola\BehatSEOContexts\Context\PerformanceContext
+            - MOrtola\BehatSEOContexts\Context\SocialContext
 
 ```
 ### Featured steps

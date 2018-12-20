@@ -45,6 +45,11 @@
     }
   ],
   "scripts": {
-    "test-cs": "vendor/bin/ecs check src"
+    "serve": "php -S localhost:8080 -t tests/fixtures/web",
+    "test-cs": "vendor/bin/ecs check src",
+    "test": "vendor/bin/behat"
+  },
+  "config": {
+    "process-timeout": 0
   }
 }
