@@ -23,7 +23,7 @@ class PerformanceContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then /^js should load (async|defer)$/
+     * @Then /^Javascript code should load (async|defer)$/
      */
     public function javascriptFilesShouldLoadAsync()
     {
@@ -154,9 +154,9 @@ class PerformanceContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then html should be minimized
+     * @Then HTML code should be minified
      */
-    public function htmlShouldBeMinimized()
+    public function htmlShouldBeMinified()
     {
         $this->assertContentIsMinified(
             $this->getSession()->getPage()->getContent(),
@@ -191,7 +191,7 @@ class PerformanceContext extends BaseContext
         Assert::assertTrue(
             $content == $contentMinified,
             sprintf(
-                'Page %s %s code is not minimized.',
+                'Page %s %s code is not minified.',
                 $this->getCurrentUrl(),
                 $resourceType
             )
@@ -238,7 +238,7 @@ class PerformanceContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then css should load deferred
+     * @Then CSS code should load deferred
      */
     public function cssFilesShouldLoadDeferred()
     {
@@ -261,7 +261,7 @@ class PerformanceContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then critical css should exist in head
+     * @Then critical CSS code should exist in head
      */
     public function criticalCssShouldExistInHead()
     {
@@ -279,26 +279,26 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @Then html should not be minimized
+     * @Then HTML code should not be minified
      */
-    public function htmlShouldNotBeMinimized()
+    public function htmlShouldNotBeMinified()
     {
         $this->assertInverse(
-            [$this, 'htmlShouldBeMinimized'],
-            'HTML should not be minimized.'
+            [$this, 'htmlShouldBeMinified'],
+            'HTML should not be minified.'
         );
     }
 
     /**
-     * @Then /^(css|js) should not be minimized$/
+     * @Then /^(CSS|Javascript) code should not be minified$/
      */
-    public function cssOrJavascriptFilesShouldNotBeMinimized(string $resourceType)
+    public function cssOrJavascriptFilesShouldNotBeMinified(string $resourceType)
     {
         $this->assertInverse(
             function () use ($resourceType) {
-                $this->cssOrJavascriptFilesShouldBeMinimized($resourceType);
+                $this->cssOrJavascriptFilesShouldBeMinified($resourceType);
             },
-            sprintf('%s should not be minimized.', $resourceType)
+            sprintf('%s should not be minified.', $resourceType)
         );
     }
 
@@ -306,14 +306,15 @@ class PerformanceContext extends BaseContext
      * @throws \Exception
      * @throws UnsupportedDriverActionException
      *
-     * @Then /^(css|js) should be minimized$/
+     * @Then /^(CSS|Javascript) code should be minified$/
      */
-    public function cssOrJavascriptFilesShouldBeMinimized(string $resourceType)
+    public function cssOrJavascriptFilesShouldBeMinified(string $resourceType)
     {
         $this->supportsSymfony(false);
 
-        $elements = $this->getPageResources($resourceType);
+        $resourceType = 'Javascript' === $resourceType ? 'js' : 'css';
 
+        $elements = $this->getPageResources($resourceType);
         foreach ($elements as $element) {
             $elementUrl = $this->getResourceUrl($element, $resourceType);
 
@@ -327,7 +328,7 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @Then critical css should not exist in head
+     * @Then critical CSS code should not exist in head
      */
     public function criticalCssShouldNotExistInHead()
     {
@@ -338,7 +339,7 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @Then /^browser cache must not be enabled for (png|jpeg|gif|ico|js|css) resources$/
+     * @Then /^browser cache should not be enabled for (png|jpeg|gif|ico|js|css) resources$/
      */
     public function browserCacheMustNotBeEnabledForCssResources(string $resourceType)
     {
@@ -353,7 +354,7 @@ class PerformanceContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then /^browser cache must be enabled for (png|jpeg|gif|ico|js|css) resources$/
+     * @Then /^browser cache should be enabled for (png|jpeg|gif|ico|js|css) resources$/
      */
     public function browserCacheMustBeEnabledForResources(string $resourceType)
     {
@@ -389,7 +390,7 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @Then /^js should not load (async|defer)$/
+     * @Then /^Javascript code should not load (async|defer)$/
      */
     public function jsShouldNotLoadAsyncOr()
     {

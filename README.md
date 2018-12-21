@@ -108,13 +108,13 @@ Then the page HTML markup should be valid
 ```
 ##### PerformanceContext
 ```gherkin
-Then /^browser cache must be enabled for (png|jpeg|gif|ico|js|css) resources$/
-Then /^js should load (async|defer)$/
-Then html should be minimized
-Then css should be minimized
-Then js should be minimized
-Then css should load deferred
-Then critical css should exist in head
+Then /^browser cache should be enabled for (png|jpeg|gif|ico|js|css) resources$/
+Then /^Javascript code should load (async|defer)$/
+Then HTML code should be minified
+Then CSS code should be minified
+Then Javascript code should be minified
+Then CSS code should load deferred
+Then critical CSS code should exist in head
 ```
 ##### SocialContext
 ```gherkin
