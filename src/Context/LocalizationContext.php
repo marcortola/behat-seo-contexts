@@ -22,31 +22,65 @@ class LocalizationContext extends BaseContext
         $this->assertHreflangValidReciprocal();
     }
 
-    private function assertHreflangValidReciprocal()
+    private function assertHreflangExists()
     {
-        $currentPageHreflangLinks = [];
-        foreach ($this->getHreflangElements() as $hreflangElement) {
-            $currentPageHreflangLinks[$hreflangElement->getAttribute('hreflang')] = $hreflangElement->getAttribute('href');
+        Assert::assertNotEmpty(
+            $this->getHreflangElements(),
+            sprintf('No hreflang meta tags have been found in %s', $this->getCurrentUrl())
+        );
+    }
+
+    /**
+     * @return NodeElement[]
+     */
+    private function getHreflangElements(): array
+    {
+        return $this->getSession()->getPage()->findAll(
+            'xpath',
+            '//head/link[@rel="alternate" and @hreflang]'
+        );
+    }
+
+    private function assertHreflangValidSelfReference()
+    {
+        $selfReferenceFound = false;
+
+        foreach ($this->getHreflangElements() as $hreflangMetaTag) {
+            $alternateLink = $hreflangMetaTag->getAttribute('href');
+            if ($alternateLink === $this->getCurrentUrl()) {
+                $selfReferenceFound = true;
+            }
         }
 
-        foreach ($currentPageHreflangLinks as $currentPageHreflangLink) {
-            if ($currentPageHreflangLink === $this->getCurrentUrl()) {
+        Assert::assertTrue(
+            $selfReferenceFound,
+            sprintf('No self-referencing hreflang meta tag has been found in %s', $this->getCurrentUrl())
+        );
+    }
+
+    private function assertHreflangValidIsoCodes()
+    {
+        $localeIsoValidator = new ISO639();
+        foreach ($this->getHreflangElements() as $hreflangMetaTag) {
+            $alternateLocale = $hreflangMetaTag->getAttribute('hreflang');
+
+            if ('x-default' === $alternateLocale) {
                 continue;
             }
 
-            $this->getSession()->visit($currentPageHreflangLink);
+            Assert::assertNotEmpty(
+                $alternateLocale,
+                'hreflang locale should not be empty.'
+            );
 
-            $referencedPageHreflangLinks = [];
-            foreach ($this->getHreflangElements() as $hreflangElement) {
-                $referencedPageHreflangLinks[$hreflangElement->getAttribute('hreflang')] = $hreflangElement->getAttribute('href');
-            }
-
-            $this->getSession()->back();
-
-            Assert::assertEquals(
-                $currentPageHreflangLinks,
-                $referencedPageHreflangLinks,
-                'Missing or not coherent hreflang reciprocal links.'
+            Assert::assertNotEmpty(
+                $localeIsoValidator->languageByCode1($alternateLocale),
+                sprintf(
+                    'Wrong locale ISO-639-1 code "%s" in hreflang meta tag in url %s: %s',
+                    $alternateLocale,
+                    $this->getCurrentUrl(),
+                    $hreflangMetaTag->getOuterHtml()
+                )
             );
         }
     }
@@ -77,67 +111,33 @@ class LocalizationContext extends BaseContext
         }
     }
 
-    private function assertHreflangValidIsoCodes()
+    private function assertHreflangValidReciprocal()
     {
-        $localeIsoValidator = new ISO639();
-        foreach ($this->getHreflangElements() as $hreflangMetaTag) {
-            $alternateLocale = $hreflangMetaTag->getAttribute('hreflang');
+        $currentPageHreflangLinks = [];
+        foreach ($this->getHreflangElements() as $hreflangElement) {
+            $currentPageHreflangLinks[$hreflangElement->getAttribute('hreflang')] = $hreflangElement->getAttribute('href');
+        }
 
-            if ('x-default' === $alternateLocale) {
+        foreach ($currentPageHreflangLinks as $currentPageHreflangLink) {
+            if ($currentPageHreflangLink === $this->getCurrentUrl()) {
                 continue;
             }
 
-            Assert::assertNotEmpty(
-                $alternateLocale,
-                'hreflang locale should not be empty.'
-            );
+            $this->getSession()->visit($currentPageHreflangLink);
 
-            Assert::assertNotEmpty(
-                $localeIsoValidator->languageByCode1($alternateLocale),
-                sprintf(
-                    'Wrong locale ISO-639-1 code "%s" in hreflang meta tag in url %s: %s',
-                    $alternateLocale,
-                    $this->getCurrentUrl(),
-                    $hreflangMetaTag->getOuterHtml()
-                )
-            );
-        }
-    }
-
-    private function assertHreflangValidSelfReference()
-    {
-        $selfReferenceFound = false;
-
-        foreach ($this->getHreflangElements() as $hreflangMetaTag) {
-            $alternateLink = $hreflangMetaTag->getAttribute('href');
-            if ($alternateLink === $this->getCurrentUrl()) {
-                $selfReferenceFound = true;
+            $referencedPageHreflangLinks = [];
+            foreach ($this->getHreflangElements() as $hreflangElement) {
+                $referencedPageHreflangLinks[$hreflangElement->getAttribute('hreflang')] = $hreflangElement->getAttribute('href');
             }
+
+            $this->getSession()->back();
+
+            Assert::assertEquals(
+                $currentPageHreflangLinks,
+                $referencedPageHreflangLinks,
+                'Missing or not coherent hreflang reciprocal links.'
+            );
         }
-
-        Assert::assertTrue(
-            $selfReferenceFound,
-            sprintf('No self-referencing hreflang meta tag has been found in %s', $this->getCurrentUrl())
-        );
-    }
-
-    private function assertHreflangExists()
-    {
-        Assert::assertNotEmpty(
-            $this->getHreflangElements(),
-            sprintf('No hreflang meta tags have been found in %s', $this->getCurrentUrl())
-        );
-    }
-
-    /**
-     * @return NodeElement[]
-     */
-    private function getHreflangElements()
-    {
-        return $this->getSession()->getPage()->findAll(
-            'xpath',
-            '//head/link[@rel="alternate" and @hreflang]'
-        );
     }
 
     /**

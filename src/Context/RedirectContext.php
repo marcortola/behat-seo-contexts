@@ -30,10 +30,9 @@ class RedirectContext extends BaseContext
     }
 
     /**
-     * @return Client
      * @throws UnsupportedDriverActionException
      */
-    private function getClient()
+    private function getClient(): Client
     {
         $this->supportsBrowserKitDriver();
 
@@ -51,12 +50,11 @@ class RedirectContext extends BaseContext
     }
 
     /**
-     * @throws \Exception
      * @throws UnsupportedDriverActionException
      *
      * @Then I should be redirected to :url
      */
-    public function iShouldBeRedirected($url)
+    public function iShouldBeRedirected(string $url)
     {
         $headers = array_change_key_case($this->getSession()->getResponseHeaders(), CASE_LOWER);
 

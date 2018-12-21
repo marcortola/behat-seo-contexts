@@ -25,11 +25,9 @@ class BaseContext extends RawMinkContext
     }
 
     /**
-     * @param string $url
-     *
      * @throws DriverException
      */
-    protected function visit($url)
+    protected function visit(string $url)
     {
         $driver = $this->getSession()->getDriver();
 
@@ -40,22 +38,15 @@ class BaseContext extends RawMinkContext
         }
     }
 
-    /**
-     * @return int
-     */
-    protected function getStatusCode()
+    protected function getStatusCode(): int
     {
         return $this->getSession()->getStatusCode();
     }
 
     /**
-     * @param     $closure
-     * @param int $seconds
-     *
-     * @return bool
      * @throws \Exception
      */
-    protected function spin(callable $closure, $seconds = 5)
+    protected function spin(callable $closure, int $seconds = 5): bool
     {
         $fraction = 4;
         $max = $seconds * $fraction;
@@ -79,12 +70,7 @@ class BaseContext extends RawMinkContext
         );
     }
 
-    /**
-     * @param string $url
-     *
-     * @return string
-     */
-    protected function toAbsoluteUrl($url)
+    protected function toAbsoluteUrl(string $url): string
     {
         if (false === strpos($url, '://')) {
             $url = sprintf('%s%s', $this->webUrl, $url);
@@ -99,35 +85,30 @@ class BaseContext extends RawMinkContext
         return $url;
     }
 
-    /**
-     * @param bool $relative
-     *
-     * @return string
-     */
-    protected function getCurrentUrl($relative = false)
+    protected function getCurrentUrl(bool $relative = false): string
     {
         $url = $this->getSession()->getCurrentUrl();
 
         return $relative ? $this->toRelativeUrl($url) : $url;
     }
 
-    /**
-     * @param string $url
-     *
-     * @return string
-     */
-    protected function toRelativeUrl($url)
+    protected function toRelativeUrl(string $url): string
     {
         return parse_url($url, PHP_URL_PATH);
     }
 
     /**
-     * @param array $driverClasses
-     * @param bool $supported
-     *
      * @throws UnsupportedDriverActionException
      */
-    private function supportsDrivers($driverClasses, $supported)
+    protected function supportsSymfony(bool $supported = true)
+    {
+        $this->supportsDrivers([KernelDriver::class], $supported);
+    }
+
+    /**
+     * @throws UnsupportedDriverActionException
+     */
+    private function supportsDrivers(array $driverClasses, bool $supported)
     {
         $driver = $this->getSession()->getDriver();
 
@@ -152,30 +133,14 @@ class BaseContext extends RawMinkContext
     }
 
     /**
-     * @param bool $supported
-     *
      * @throws UnsupportedDriverActionException
      */
-    protected function supportsSymfony($supported = true)
-    {
-        $this->supportsDrivers([KernelDriver::class], $supported);
-    }
-
-    /**
-     * @param bool $supported
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    protected function supportsBrowserKitDriver($supported = true)
+    protected function supportsBrowserKitDriver(bool $supported = true)
     {
         $this->supportsDrivers([BrowserKitDriver::class], $supported);
     }
 
-    /**
-     * @param callable $callableStepDefinition
-     * @param string $exceptionMessage
-     */
-    protected function assertInverse($callableStepDefinition, $exceptionMessage = '')
+    protected function assertInverse(callable $callableStepDefinition, string $exceptionMessage = '')
     {
         try {
             $callableStepDefinition();

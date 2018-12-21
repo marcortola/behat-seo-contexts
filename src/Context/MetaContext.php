@@ -8,13 +8,11 @@ use PHPUnit\Framework\Assert;
 class MetaContext extends BaseContext
 {
     /**
-     * @param $expectedCanonicalUrl
-     *
      * @throws \Exception
      *
      * @Then the page canonical should be :expectedCanonicalUrl
      */
-    public function thePageCanonicalShouldBe($expectedCanonicalUrl)
+    public function thePageCanonicalShouldBe(string $expectedCanonicalUrl)
     {
         Assert::assertNotNull(
             $this->getCanonicalElement(),
@@ -25,6 +23,17 @@ class MetaContext extends BaseContext
             $this->toAbsoluteUrl($expectedCanonicalUrl),
             $this->getCanonicalElement()->getAttribute('href'),
             sprintf('Canonical url should be "%s"', $this->toAbsoluteUrl($expectedCanonicalUrl))
+        );
+    }
+
+    /**
+     * @return NodeElement|null
+     */
+    private function getCanonicalElement()
+    {
+        return $this->getSession()->getPage()->find(
+            'xpath',
+            '//head/link[@rel="canonical"]'
         );
     }
 
@@ -50,18 +59,6 @@ class MetaContext extends BaseContext
     }
 
     /**
-     * @Then the page meta robots should not be noindex
-     */
-    public function thePageShouldNotBeNoindex()
-    {
-        $this->assertInverse(
-            [$this, 'thePageShouldBeNoindex'],
-            'Page meta robots is noindex.'
-        );
-    }
-
-
-    /**
      * @return NodeElement|null
      */
     private function getMetaRobotsElement()
@@ -73,24 +70,22 @@ class MetaContext extends BaseContext
     }
 
     /**
-     * @return NodeElement|null
+     * @Then the page meta robots should not be noindex
      */
-    private function getCanonicalElement()
+    public function thePageShouldNotBeNoindex()
     {
-        return $this->getSession()->getPage()->find(
-            'xpath',
-            '//head/link[@rel="canonical"]'
+        $this->assertInverse(
+            [$this, 'thePageShouldBeNoindex'],
+            'Page meta robots is noindex.'
         );
     }
 
     /**
-     * @param $expectedMetaTitle
-     *
      * @throws \Exception
      *
      * @Then the page meta title should be :expectedMetaTitle
      */
-    public function thePageMetaTitleShouldBe($expectedMetaTitle)
+    public function thePageMetaTitleShouldBe(string $expectedMetaTitle)
     {
         Assert::assertNotNull(
             $this->getTitleElement(),
@@ -116,13 +111,11 @@ class MetaContext extends BaseContext
     }
 
     /**
-     * @param $expectedMetaDescription
-     *
      * @throws \Exception
      *
      * @Then the page meta description should be :expectedMetaDescription
      */
-    public function thePageMetaDescriptionShouldBe($expectedMetaDescription)
+    public function thePageMetaDescriptionShouldBe(string $expectedMetaDescription)
     {
         Assert::assertNotNull(
             $this->getMetaDescriptionElement(),

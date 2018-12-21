@@ -6,12 +6,10 @@ use PHPUnit\Framework\Assert;
 
 class SocialContext extends BaseContext
 {
-    const FACEBOOK_COMMENT_SELECTOR = '.fb-comments iframe';
-
     /**
      * @Then /^the (twitter|facebook) open graph data should not satisfy (minimum|full) requirements$/
      */
-    public function theOpenGraphDataShouldNotSatisfyRequirements($socialNetworkName, $requirementsType)
+    public function theOpenGraphDataShouldNotSatisfyRequirements(string $socialNetworkName, string $requirementsType)
     {
         $this->assertInverse(
             function () use ($socialNetworkName, $requirementsType) {
@@ -22,14 +20,11 @@ class SocialContext extends BaseContext
     }
 
     /**
-     * @param string $socialNetworkName
-     * @param string $requirementsType
-     *
      * @throws \Exception
      *
      * @Then /^the (twitter|facebook) open graph data should satisfy (minimum|full) requirements$/
      */
-    public function theOpenGraphDataShouldSatisfyRequirements($socialNetworkName, $requirementsType)
+    public function theOpenGraphDataShouldSatisfyRequirements(string $socialNetworkName, string $requirementsType)
     {
         $fullRequirements = 'full' === $requirementsType ? true : false;
 
@@ -50,11 +45,9 @@ class SocialContext extends BaseContext
     }
 
     /**
-     * @param bool $fullRequirements
-     *
      * @throws \Exception
      */
-    private function validateTwitterOpenGraphData($fullRequirements = false)
+    private function validateTwitterOpenGraphData(bool $fullRequirements = false)
     {
         /* OG meta twitter:card */
         $twitterCard = $this->getOGMetaContent('twitter:card');
@@ -93,12 +86,9 @@ class SocialContext extends BaseContext
     }
 
     /**
-     * @param string $property
-     *
-     * @return null|string
      * @throws \Exception
      */
-    private function getOGMetaContent($property)
+    private function getOGMetaContent(string $property): string
     {
         $xpath = sprintf('//head/meta[@property="%1$s" or @name="%1$s"]', $property);
         $meta = $this->getSession()->getPage()->find('xpath', $xpath);
@@ -119,11 +109,9 @@ class SocialContext extends BaseContext
     }
 
     /**
-     * @param bool $fullRequirements
-     *
      * @throws \Exception
      */
-    private function validateFacebookOpenGraphData($fullRequirements = false)
+    private function validateFacebookOpenGraphData(bool $fullRequirements = false)
     {
         /* OG meta og:url */
         $facebookUrl = $this->getOGMetaContent('og:url');

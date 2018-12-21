@@ -17,24 +17,19 @@ class SitemapContext extends BaseContext
     private $sitemapXml;
 
     /**
-     * @param $sitemapUrl
-     *
      * @throws \Exception
      *
      * @Given the sitemap :sitemapUrl
      */
-    public function theSitemap($sitemapUrl)
+    public function theSitemap(string $sitemapUrl)
     {
         $this->sitemapXml = $this->getSitemapXml($sitemapUrl);
     }
 
     /**
-     * @param string $sitemapUrl
-     *
-     * @return \DOMDocument
      * @throws \Exception
      */
-    private function getSitemapXml($sitemapUrl)
+    private function getSitemapXml(string $sitemapUrl): \DOMDocument
     {
         $sitemapUrl = $this->toAbsoluteUrl($sitemapUrl);
 
@@ -53,13 +48,11 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @param string $childSitemapUrl
-     *
      * @throws \Exception
      *
      * @Then the index sitemap should have child :childSitemapUrl
      */
-    public function theIndexSitemapShouldHaveChild($childSitemapUrl)
+    public function theIndexSitemapShouldHaveChild(string $childSitemapUrl)
     {
         $this->assertSitemapHasBeenRead();
 
@@ -91,10 +84,7 @@ class SitemapContext extends BaseContext
         }
     }
 
-    /**
-     * @return \DOMXPath
-     */
-    private function getXpathInspector()
+    private function getXpathInspector(): \DOMXPath
     {
         $xpath = new \DOMXPath($this->sitemapXml);
         $xpath->registerNamespace('sm', 'http://www.sitemaps.org/schemas/sitemap/0.9');
@@ -104,13 +94,11 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @param int $expectedChildrenCount
-     *
      * @throws \Exception
      *
      * @Then /^the sitemap has ([0-9]+) children$/
      */
-    public function theSitemapHasChildren($expectedChildrenCount)
+    public function theSitemapHasChildren(int $expectedChildrenCount)
     {
         $this->assertSitemapHasBeenRead();
 
@@ -172,11 +160,9 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @param string $sitemapSchemaFile
-     *
      * @throws \Exception
      */
-    private function assertValidSitemap($sitemapSchemaFile)
+    private function assertValidSitemap(string $sitemapSchemaFile)
     {
         Assert::assertFileExists(
             $sitemapSchemaFile,
@@ -235,7 +221,7 @@ class SitemapContext extends BaseContext
     /**
      * @Then /^the sitemap should not be a valid (index |multilanguage |)sitemap$/
      */
-    public function theSitemapShouldNotBeAValidSitemap($sitemapType = '')
+    public function theSitemapShouldNotBeAValidSitemap(string $sitemapType = '')
     {
         $this->assertInverse(
             function () use ($sitemapType) {
@@ -246,13 +232,11 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @param string $sitemapType
-     *
      * @throws \Exception
      *
      * @Then /^the sitemap should be a valid (index |multilanguage |)sitemap$/
      */
-    public function theSitemapShouldBeAValidSitemap($sitemapType = '')
+    public function theSitemapShouldBeAValidSitemap(string $sitemapType = '')
     {
         $sitemapType = trim($sitemapType);
         $this->assertSitemapHasBeenRead();

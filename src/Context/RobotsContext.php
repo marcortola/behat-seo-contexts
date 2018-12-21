@@ -14,23 +14,19 @@ class RobotsContext extends BaseContext
     private $crawlerUserAgent = 'Googlebot';
 
     /**
-     * @param string $crawlerUserAgent
-     *
      * @Given I am a :crawlerUserAgent crawler
      */
-    public function iAmACrawler($crawlerUserAgent)
+    public function iAmACrawler(string $crawlerUserAgent)
     {
         $this->crawlerUserAgent = $crawlerUserAgent;
     }
 
     /**
-     * @param string $resource
-     *
      * @throws \Exception
      *
      * @Then I should not be able to crawl :resource
      */
-    public function iShouldNotBeAbleToCrawl($resource)
+    public function iShouldNotBeAbleToCrawl(string $resource)
     {
         Assert::assertFalse(
             $this->getRobotsClient()->userAgent($this->crawlerUserAgent)->isAllowed($resource),
@@ -42,10 +38,7 @@ class RobotsContext extends BaseContext
         );
     }
 
-    /**
-     * @return UriClient
-     */
-    private function getRobotsClient()
+    private function getRobotsClient(): UriClient
     {
         return new UriClient($this->webUrl);
     }
@@ -96,13 +89,11 @@ class RobotsContext extends BaseContext
     }
 
     /**
-     * @param string $resource
-     *
      * @throws \Exception
      *
      * @Then I should be able to crawl :resource
      */
-    public function iShouldBeAbleToCrawl($resource)
+    public function iShouldBeAbleToCrawl(string $resource)
     {
         Assert::assertTrue(
             $this->getRobotsClient()->userAgent($this->crawlerUserAgent)->isAllowed($resource),

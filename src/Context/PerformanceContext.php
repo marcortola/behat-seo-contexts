@@ -42,14 +42,10 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @param string $resourceType
-     * @param bool $selfHosted
-     * @param bool $expected
-     *
      * @return NodeElement[]
      * @throws \Exception
      */
-    private function getPageResources($resourceType, $selfHosted = true, $expected = true)
+    private function getPageResources(string $resourceType, bool $selfHosted = true, bool $expected = true): array
     {
         switch ($resourceType) {
             case self::RESOURCE_TYPES['JPEG']:
@@ -116,13 +112,9 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @param NodeElement $element
-     * @param string $resourceType
-     *
-     * @return string
      * @throws \Exception
      */
-    private function getResourceUrl(NodeElement $element, $resourceType)
+    private function getResourceUrl(NodeElement $element, string $resourceType): string
     {
         $this->assertResourceTypeIsValid($resourceType);
 
@@ -146,10 +138,7 @@ class PerformanceContext extends BaseContext
         }
     }
 
-    /**
-     * @param string $resourceType
-     */
-    private function assertResourceTypeIsValid($resourceType)
+    private function assertResourceTypeIsValid(string $resourceType)
     {
         if (!in_array($resourceType, self::RESOURCE_TYPES)) {
             throw new \InvalidArgumentException(
@@ -176,12 +165,9 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @param string $content
-     * @param string $resourceType
-     *
      * @throws \Exception
      */
-    private function assertContentIsMinified($content, $resourceType)
+    private function assertContentIsMinified(string $content, string $resourceType)
     {
         switch ($resourceType) {
             case self::RESOURCE_TYPES['CSS']:
@@ -212,12 +198,7 @@ class PerformanceContext extends BaseContext
         );
     }
 
-    /**
-     * @param $css
-     *
-     * @return string
-     */
-    private function minimizeCss($css)
+    private function minimizeCss(string $css): string
     {
         return preg_replace(
             [
@@ -231,12 +212,7 @@ class PerformanceContext extends BaseContext
         );
     }
 
-    /**
-     * @param $js
-     *
-     * @return string
-     */
-    private function minimizeJs($js)
+    private function minimizeJs(string $js): string
     {
         return preg_replace(
             [
@@ -250,12 +226,7 @@ class PerformanceContext extends BaseContext
         );
     }
 
-    /**
-     * @param $html
-     *
-     * @return string
-     */
-    private function minimizeHtml($html)
+    private function minimizeHtml(string $html): string
     {
         return preg_replace(
             '/(?<=>)\s+|\s+(?=<)/',
@@ -319,10 +290,9 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     *
      * @Then /^(css|js) should not be minimized$/
      */
-    public function cssOrJavascriptFilesShouldNotBeMinimized($resourceType)
+    public function cssOrJavascriptFilesShouldNotBeMinimized(string $resourceType)
     {
         $this->assertInverse(
             function () use ($resourceType) {
@@ -333,14 +303,12 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @param string $resourceType
-     *
      * @throws \Exception
      * @throws UnsupportedDriverActionException
      *
      * @Then /^(css|js) should be minimized$/
      */
-    public function cssOrJavascriptFilesShouldBeMinimized($resourceType)
+    public function cssOrJavascriptFilesShouldBeMinimized(string $resourceType)
     {
         $this->supportsSymfony(false);
 
@@ -372,7 +340,7 @@ class PerformanceContext extends BaseContext
     /**
      * @Then /^browser cache must not be enabled for (png|jpeg|gif|ico|js|css) resources$/
      */
-    public function browserCacheMustNotBeEnabledForCssResources($resourceType)
+    public function browserCacheMustNotBeEnabledForCssResources(string $resourceType)
     {
         $this->assertInverse(
             function () use ($resourceType) {
@@ -383,13 +351,11 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @param string $resourceType
-     *
      * @throws \Exception
      *
      * @Then /^browser cache must be enabled for (png|jpeg|gif|ico|js|css) resources$/
      */
-    public function browserCacheMustBeEnabledForResources($resourceType)
+    public function browserCacheMustBeEnabledForResources(string $resourceType)
     {
         $this->supportsSymfony(false);
 
