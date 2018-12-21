@@ -28,8 +28,10 @@
   "require-dev": {
     "behat/mink-goutte-driver": "^1.0",
     "behat/mink-browserkit-driver": "^1.0",
-    "behat/symfony2-extension": "^2.0",
-    "symplify/easy-coding-standard": "^5.2"
+    "behat/symfony2-extension": "^2.0"
+  },
+  "suggest": {
+    "symplify/easy-coding-standard": "Allows code style test using composer test-cs console command"
   },
   "autoload": {
     "psr-4": {
