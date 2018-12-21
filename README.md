@@ -1,5 +1,12 @@
 # Behat SEO Contexts
-Behat extension for testing some On-Page SEO factors.
+
+[![Latest Version](https://img.shields.io/github/release/mortola/behat-seo-contexts.svg?style=flat-square)](https://github.com/mortola/behat-seo-contexts/releases)
+[![Build Status](https://img.shields.io/travis/mortola/behat-seo-contexts.svg?style=flat-square)](https://travis-ci.org/mortola/behat-seo-contexts)
+[![Quality Score](https://img.shields.io/scrutinizer/g/mortola/behat-seo-contexts.svg?style=flat-square)](https://scrutinizer-ci.com/g/mortola/behat-seo-contexts)
+[![StyleCI](https://github.styleci.io/repos/156007212/shield?branch=master)](https://github.styleci.io/repos/156007212)
+[![Total Downloads](https://img.shields.io/packagist/dt/mortola/behat-seo-contexts.svg?style=flat-square)](https://packagist.org/packages/mortola/behat-seo-contexts)
+
+**Behat extension for testing some On-Page SEO factors.**
 
 Includes contexts for testing:
 * title / meta description
@@ -19,10 +26,10 @@ Installation
 
 Basic requirements:
 
-* Php 5.6+
+* Php 7+
 * Behat 3+
 * Mink + Mink extension
-* PHPUnit
+* PHPUnit 6+
 
 ### How to install it
 
@@ -55,7 +62,7 @@ default:
 ```
 ### Featured steps
 ##### MetaContext
-```
+```gherkin
 Then the page canonical should be :expectedCanonicalUrl
 Then the page meta title should be :expectedMetaTitle
 Then the page meta description should be :expectedMetaDescription
@@ -63,29 +70,29 @@ Then the page meta robots should be noindex
 Then the page meta robots should not be noindex
 ```
 ##### LocalizationContext
-```
+```gherkin
 Then the page hreflang markup should be valid
 ```
 ##### RobotsContext
-```
+```gherkin
 Given I am a :crawlerUserAgent crawler
 Then I should not be able to crawl :resource
 Then I should be able to crawl :resource
 Then I should be able to get the sitemap URL
 ```
 ##### IndexationContext
-```
+```gherkin
 Then the page should be indexable
 Then the page should not be indexable
 ```
 ##### RedirectContext
-```
+```gherkin
 Given /^I follow redirects$/
 Given /^I do not follow redirects$/
 Then /^I (?:am|should be) redirected(?: to "([^"]*)")?$/
 ```
 ##### SitemapContext
-```
+```gherkin
 Given the sitemap :sitemapUrl
 Then /^the sitemap should be a valid (index |multilanguage |)sitemap$/
 Then the index sitemap should have child :childSitemapUrl
@@ -94,11 +101,11 @@ Then the multilanguage sitemap pass Google validation
 Then the sitemap URLs are alive
 ```
 ##### HTMLContext
-```
+```gherkin
 Then the page HTML markup should be valid
 ```
 ##### PerformanceContext
-```
+```gherkin
 Then /^browser cache must be enabled for (png|jpeg|gif|ico|js|css) resources$/
 Then /^js should load (async|defer)$/
 Then /^html should be minimized$/
@@ -107,9 +114,13 @@ Then css should load deferred
 Then critical css should exist in head
 ```
 ##### SocialContext
-```
+```gherkin
 Then /^the (twitter|facebook) open graph data should satisfy (minimum|full) requirements$/
 ```
+
+### Examples
+This library is self-tested, and you can find examples inside the [features directory](./tests/features).
+Feel free to explore it to discover each step definition.
 
 Useful tips
 ------------
