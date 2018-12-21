@@ -2,15 +2,16 @@
 Behat extension for testing some On-Page SEO factors.
 
 Includes contexts for testing:
-* meta title/description
+* title / meta description
 * canonical
 * hreflang
 * meta robots
 * robots.txt
+* indexation: tests meta robots + robots.txt + X-Robots-Tag header
 * redirects
 * sitemap validation (inc. multilanguage)
 * HTML validation
-* performance 
+* assets performance 
 * more...
 
 Installation
@@ -44,6 +45,7 @@ default:
             - MOrtola\BehatSEOContexts\Context\MetaContext
             - MOrtola\BehatSEOContexts\Context\LocalizationContext
             - MOrtola\BehatSEOContexts\Context\RobotsContext
+            - MOrtola\BehatSEOContexts\Context\IndexationContext
             - MOrtola\BehatSEOContexts\Context\RedirectContext
             - MOrtola\BehatSEOContexts\Context\SitemapContext
             - MOrtola\BehatSEOContexts\Context\HTMLContext
@@ -57,6 +59,8 @@ default:
 Then the page canonical should be :expectedCanonicalUrl
 Then the page meta title should be :expectedMetaTitle
 Then the page meta description should be :expectedMetaDescription
+Then the page meta robots should be noindex
+Then the page meta robots should not be noindex
 ```
 ##### LocalizationContext
 ```
@@ -64,10 +68,15 @@ Then the page hreflang markup should be valid
 ```
 ##### RobotsContext
 ```
-Then the page should not be noindex
+Given I am a :crawlerUserAgent crawler
 Then I should not be able to crawl :resource
 Then I should be able to crawl :resource
 Then I should be able to get the sitemap URL
+```
+##### IndexationContext
+```
+Then the page should be indexable
+Then the page should not be indexable
 ```
 ##### RedirectContext
 ```

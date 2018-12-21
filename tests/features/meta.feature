@@ -27,3 +27,29 @@ Feature: Meta feature
 
     When I am on "/meta/without-seo-meta.html"
     Then the page meta description should not exist
+
+  Scenario: Testing page meta robots
+
+    Given I am on "/meta/robots/bad-meta-robots.html"
+    Then the page meta robots should not be noindex
+
+    When I am on "/meta/robots/meta-robots-index.html"
+    Then the page meta robots should not be noindex
+
+    When I am on "/meta/robots/meta-robots-index-follow.html"
+    Then the page meta robots should not be noindex
+
+    When I am on "/meta/robots/meta-robots-index-nofollow.html"
+    Then the page meta robots should not be noindex
+
+    When I am on "/meta/robots/meta-robots-noindex.html"
+    Then the page meta robots should be noindex
+
+    When I am on "/meta/robots/meta-robots-noindex-follow.html"
+    Then the page meta robots should be noindex
+
+    When I am on "/meta/robots/meta-robots-noindex-nofollow.html"
+    Then the page meta robots should be noindex
+
+    When I am on "/meta/robots/without-meta-robots.html"
+    Then the page meta robots should not be noindex

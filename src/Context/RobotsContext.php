@@ -96,60 +96,6 @@ class RobotsContext extends BaseContext
     }
 
     /**
-     * @Then the page should be noindex
-     */
-    public function thePageShouldBeNoindex()
-    {
-        $this->assertInverse(
-            [$this, 'thePageShouldNotBeNoindex'],
-            'The page is indexable.'
-        );
-    }
-
-    /**
-     * @throws \Exception
-     *
-     * @Then the page should not be noindex
-     */
-    public function thePageShouldNotBeNoindex()
-    {
-        $metaRobotsElement = $this->getSession()->getPage()->find(
-            'xpath',
-            '//head/meta[@name="robots"]'
-        );
-
-        if (null != $metaRobotsElement) {
-            $metaRobots = $metaRobotsElement->getAttribute('content');
-
-            Assert::assertNotContains(
-                'noindex',
-                strtolower($metaRobots),
-                sprintf(
-                    'Url %s should not be noindex: %s',
-                    $this->getCurrentUrl(),
-                    $metaRobotsElement->getOuterHtml()
-                )
-            );
-        }
-
-        $robotsHeaderTag = $this->getSession()->getResponseHeader('X-Robots-Tag');
-
-        if (null != $robotsHeaderTag) {
-            Assert::assertNotContains(
-                'noindex',
-                strtolower($robotsHeaderTag),
-                sprintf(
-                    'Url %s should not send X-Robots-Tag HTTP header with noindex value: %s',
-                    $this->getCurrentUrl(),
-                    $robotsHeaderTag
-                )
-            );
-        }
-
-        $this->iShouldBeAbleToCrawl($this->getCurrentUrl());
-    }
-
-    /**
      * @param string $resource
      *
      * @throws \Exception

@@ -5,14 +5,15 @@ default:
     default:
       paths: [ '%paths.base%/tests/features' ]
       contexts:
-        - MOrtola\BehatSEOContexts\Context\RedirectContext
-        - MOrtola\BehatSEOContexts\Context\RobotsContext
-        - MOrtola\BehatSEOContexts\Context\PerformanceContext
-        - MOrtola\BehatSEOContexts\Context\SocialContext
         - MOrtola\BehatSEOContexts\Context\MetaContext
         - MOrtola\BehatSEOContexts\Context\LocalizationContext
-        - MOrtola\BehatSEOContexts\Context\HTMLContext
+        - MOrtola\BehatSEOContexts\Context\RobotsContext
+        - MOrtola\BehatSEOContexts\Context\IndexationContext
+        - MOrtola\BehatSEOContexts\Context\RedirectContext
         - MOrtola\BehatSEOContexts\Context\SitemapContext
+        - MOrtola\BehatSEOContexts\Context\HTMLContext
+        - MOrtola\BehatSEOContexts\Context\PerformanceContext
+        - MOrtola\BehatSEOContexts\Context\SocialContext
         - Behat\MinkExtension\Context\MinkContext
   extensions:
     Behat\MinkExtension:

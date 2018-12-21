@@ -29,6 +29,50 @@ class MetaContext extends BaseContext
     }
 
     /**
+     * @Then the page meta robots should be noindex
+     */
+    public function thePageShouldBeNoindex()
+    {
+        Assert::assertNotNull(
+            $this->getMetaRobotsElement(),
+            'Meta robots does not exist.'
+        );
+
+        Assert::assertContains(
+            'noindex',
+            strtolower($this->getMetaRobotsElement()->getAttribute('content')),
+            sprintf(
+                'Url %s is not noindex: %s',
+                $this->getCurrentUrl(),
+                $this->getMetaRobotsElement()->getOuterHtml()
+            )
+        );
+    }
+
+    /**
+     * @Then the page meta robots should not be noindex
+     */
+    public function thePageShouldNotBeNoindex()
+    {
+        $this->assertInverse(
+            [$this, 'thePageShouldBeNoindex'],
+            'Page meta robots is noindex.'
+        );
+    }
+
+
+    /**
+     * @return NodeElement|null
+     */
+    private function getMetaRobotsElement()
+    {
+        return $this->getSession()->getPage()->find(
+            'xpath',
+            '//head/meta[@name="robots"]'
+        );
+    }
+
+    /**
      * @return NodeElement|null
      */
     private function getCanonicalElement()

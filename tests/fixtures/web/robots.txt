@@ -1,10 +1,12 @@
 User-agent: *
 Disallow: /only-google/
 Disallow: /*?
+Disallow: /indexation/blocked-by-robots.php
 
 User-agent: Googlebot
 Disallow: /*?
 Allow: /only-google/
+Disallow: /indexation/blocked-by-robots.php
 
 User-agent: BadBot
 Disallow: /
