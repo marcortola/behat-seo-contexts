@@ -13,7 +13,7 @@ before_script:
   - composer serve &> /dev/null &
   - cp behat.yml.dist behat.yml
   - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer install --no-interaction
-  - composer update --prefer-dist --no-progress --no-suggest
+  - composer update --prefer-dist --no-progress
 
 script:
   - ./vendor/bin/behat --format=progress --no-interaction
