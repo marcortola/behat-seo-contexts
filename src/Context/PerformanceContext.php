@@ -154,7 +154,7 @@ class PerformanceContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then /^html should be minimized$/
+     * @Then html should be minimized
      */
     public function htmlShouldBeMinimized()
     {

@@ -87,18 +87,20 @@ Then the page should not be indexable
 ```
 ##### RedirectContext
 ```gherkin
-Given /^I follow redirects$/
-Given /^I do not follow redirects$/
-Then /^I (?:am|should be) redirected(?: to "([^"]*)")?$/
+Given I follow redirects
+Given I do not follow redirects
+Then I should be redirected to :url
 ```
 ##### SitemapContext
 ```gherkin
 Given the sitemap :sitemapUrl
-Then /^the sitemap should be a valid (index |multilanguage |)sitemap$/
-Then the index sitemap should have child :childSitemapUrl
-Then /^the sitemap has ([0-9]+) children$/
-Then the multilanguage sitemap pass Google validation
-Then the sitemap URLs are alive
+Then the sitemap should be valid
+Then the index sitemap should be valid
+Then the multilanguage sitemap should be valid
+Then the index sitemap should have a child with URL :childSitemapUrl
+Then /^the sitemap should have ([0-9]+) children$/
+Then the multilanguage sitemap should pass Google validation
+Then the sitemap URLs should be alive
 ```
 ##### HTMLContext
 ```gherkin
@@ -108,8 +110,9 @@ Then the page HTML markup should be valid
 ```gherkin
 Then /^browser cache must be enabled for (png|jpeg|gif|ico|js|css) resources$/
 Then /^js should load (async|defer)$/
-Then /^html should be minimized$/
-Then /^(css|js) should be minimized$/
+Then html should be minimized
+Then css should be minimized
+Then js should be minimized
 Then css should load deferred
 Then critical css should exist in head
 ```

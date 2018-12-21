@@ -50,9 +50,9 @@ class SitemapContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then the index sitemap should have child :childSitemapUrl
+     * @Then the index sitemap should have a child with URL :childSitemapUrl
      */
-    public function theIndexSitemapShouldHaveChild(string $childSitemapUrl)
+    public function theIndexSitemapShouldHaveAChildWithUrl(string $childSitemapUrl)
     {
         $this->assertSitemapHasBeenRead();
 
@@ -96,9 +96,9 @@ class SitemapContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then /^the sitemap has ([0-9]+) children$/
+     * @Then /^the sitemap should have ([0-9]+) children$/
      */
-    public function theSitemapHasChildren(int $expectedChildrenCount)
+    public function theSitemapShouldHaveChildren(int $expectedChildrenCount)
     {
         $this->assertSitemapHasBeenRead();
 
@@ -121,9 +121,9 @@ class SitemapContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then the multilanguage sitemap pass Google validation
+     * @Then the multilanguage sitemap should pass Google validation
      */
-    public function theMultilanguageSitemapPassGoogleValidation()
+    public function theMultilanguageSitemapShouldPassGoogleValidation()
     {
         $this->assertSitemapHasBeenRead();
 
@@ -148,7 +148,7 @@ class SitemapContext extends BaseContext
                         1,
                         $alternateLinkNodes->length,
                         sprintf(
-                            'Url %s has not reciprocous Url for alternative link %s in Sitemap %s',
+                            'Url %s has not reciprocous URL for alternative link %s in Sitemap %s',
                             $urlLoc,
                             $alternateLinkHref,
                             $this->sitemapXml->documentURI
@@ -182,9 +182,9 @@ class SitemapContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then the sitemap URLs are alive
+     * @Then the sitemap URLs should be alive
      */
-    public function theSitemapUrlsAreAlive()
+    public function theSitemapUrlsShouldBeAlive()
     {
         $this->assertSitemapHasBeenRead();
 
@@ -219,13 +219,13 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @Then /^the sitemap should not be a valid (index |multilanguage |)sitemap$/
+     * @Then /^the (index |multilanguage |)sitemap should not be valid$/
      */
-    public function theSitemapShouldNotBeAValidSitemap(string $sitemapType = '')
+    public function theSitemapShouldNotBeValid(string $sitemapType = '')
     {
         $this->assertInverse(
             function () use ($sitemapType) {
-                $this->theSitemapShouldBeAValidSitemap($sitemapType);
+                $this->theSitemapShouldBeValid($sitemapType);
             },
             sprintf('The sitemap is a valid %s sitemap.', $sitemapType)
         );
@@ -234,9 +234,9 @@ class SitemapContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then /^the sitemap should be a valid (index |multilanguage |)sitemap$/
+     * @Then /^the (index |multilanguage |)sitemap should be valid$/
      */
-    public function theSitemapShouldBeAValidSitemap(string $sitemapType = '')
+    public function theSitemapShouldBeValid(string $sitemapType = '')
     {
         $sitemapType = trim($sitemapType);
         $this->assertSitemapHasBeenRead();
@@ -263,8 +263,8 @@ class SitemapContext extends BaseContext
     public function theMultilanguageSitemapShouldNotPassGoogleValidation()
     {
         $this->assertInverse(
-            [$this, 'theMultilanguageSitemapPassGoogleValidation'],
-            sprintf('The multilanguage sitemap pass Google validation.')
+            [$this, 'theMultilanguageSitemapShouldPassGoogleValidation'],
+            sprintf('The multilanguage sitemap passes Google validation.')
         );
     }
 }
