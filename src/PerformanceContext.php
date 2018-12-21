@@ -26,43 +26,24 @@ class PerformanceContext extends BaseContext
      *
      * @throws UnsupportedDriverActionException
      * @throws \Exception
-     * @Then /^browser cache must be enabled from "([^"]*)" (png|jpeg|gif|ico|js|css) resources$/
+     *
+     * @Then /^browser cache must be enabled for (.+\..+|external|internal) (png|jpeg|gif|ico|js|css) resources$
      */
-    public function browserCacheMustBeEnabledFromResources($host, $resourceType)
+    public function browserCacheMustBeEnabledForResources($host, $resourceType)
     {
         $this->supportsSymfony(false);
-        $elements = $this->getPageResources($resourceType, false, true, $host);
+        switch ($host) {
+            case 'internal':
+                $elements = $this->getPageResources($resourceType, true);
+                break;
+            case 'external':
+                $elements = $this->getPageResources($resourceType, false, $host);
+                break;
+            default:
+                $elements = $this->getPageResources($resourceType, false, $host);
+                break;
+        }
         $this->checkResourceCache($elements[array_rand($elements)], $resourceType);
-        $this->getSession()->back();
-    }
-
-    /**
-     * @param string $resourceType
-     *
-     * @throws \Exception
-     *
-     * @Then /^browser cache must be enabled for (png|jpeg|gif|ico|js|css) resources$/
-     */
-    public function browserCacheMustBeEnabledForResources($resourceType)
-    {
-        $this->supportsSymfony(false);
-        $elements = $this->getPageResources($resourceType, false);
-        $this->checkResourceCache(current($elements), $resourceType);
-        $this->getSession()->back();
-    }
-
-    /**
-     * @param string $resourceType
-     *
-     * @throws \Exception
-     *
-     * @Then /^browser cache must be enabled for (png|jpeg|gif|ico|js|css) self hosted resources$/
-     */
-    public function browserCacheMustBeEnabledForSelfHostedResources($resourceType)
-    {
-        $this->supportsSymfony(false);
-        $elements = $this->getPageResources($resourceType, true);
-        $this->checkResourceCache(current($elements), true);
         $this->getSession()->back();
     }
 
@@ -155,9 +136,13 @@ class PerformanceContext extends BaseContext
                 '[(starts-with(@$1,"' . $this->webUrl . '") or starts-with(@$1,"/")) and contains(@$1,',
                 $xpath
             );
-        }
-
-        if (null !== $host) {
+        } elseif (false === $selfHosted && $host === 'external') {
+            $xpath = preg_replace(
+                '/\[contains\(@(.*),/',
+                '[not(starts-with(@$1,"' . $this->webUrl . '") or starts-with(@$1,"/")) and contains(@$1,',
+                $xpath
+            );
+        } elseif (null !== $host) {
             $xpath = preg_replace(
                 '/\[contains\(@(.*),/',
                 '[(starts-with(@$1,"' . $host . '") or starts-with(@$1,"/")) and contains(@$1,',
@@ -171,7 +156,7 @@ class PerformanceContext extends BaseContext
             Assert::assertNotEmpty(
                 $elements,
                 sprintf(
-                    'No%s %s files are found in %s',
+                    'No%s %s files are found for %s',
                     $selfHosted ? ' self hosted' : '',
                     $resourceType,
                     $host ?: $this->getCurrentUrl()
