@@ -10,13 +10,13 @@ Feature: Meta feature
 
   Scenario: Testing page meta title
     Given I am on "/meta/with-seo-meta.html"
-    Then the page meta title should be "Test title"
+    Then the page title should be "Test title"
 
     When I am on "/meta/with-empty-seo-meta.html"
-    Then the page meta title should be ""
+    Then the page title should be ""
 
     When I am on "/meta/without-seo-meta.html"
-    Then the page meta title should not exist
+    Then the page title should not exist
 
   Scenario: Testing page meta description
     Given I am on "/meta/with-seo-meta.html"

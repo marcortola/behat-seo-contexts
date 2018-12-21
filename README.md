@@ -64,7 +64,7 @@ default:
 ##### MetaContext
 ```gherkin
 Then the page canonical should be :expectedCanonicalUrl
-Then the page meta title should be :expectedMetaTitle
+Then the page title should be :expectedTitle
 Then the page meta description should be :expectedMetaDescription
 Then the page meta robots should be noindex
 Then the page meta robots should not be noindex

@@ -83,21 +83,21 @@ class MetaContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then the page meta title should be :expectedMetaTitle
+     * @Then the page title should be :expectedTitle
      */
-    public function thePageMetaTitleShouldBe(string $expectedMetaTitle)
+    public function thePageTitleShouldBe(string $expectedTitle)
     {
         Assert::assertNotNull(
             $this->getTitleElement(),
-            'Meta title does not exist'
+            'Title tag does not exist'
         );
 
         Assert::assertEquals(
-            $expectedMetaTitle,
+            $expectedTitle,
             $this->getTitleElement()->getText(),
             sprintf(
-                'Meta title is not "%s"',
-                $expectedMetaTitle
+                'Title tag is not "%s"',
+                $expectedTitle
             )
         );
     }
@@ -155,13 +155,13 @@ class MetaContext extends BaseContext
     }
 
     /**
-     * @Then the page meta title should not exist
+     * @Then the page title should not exist
      */
-    public function thePageMetaTitleShouldNotExist()
+    public function thePageTitleShouldNotExist()
     {
         Assert::assertNull(
             $this->getTitleElement(),
-            'Title does exist'
+            'Title tag does exist.'
         );
     }
 
