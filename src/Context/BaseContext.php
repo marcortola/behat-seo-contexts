@@ -3,7 +3,6 @@
 namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Driver\BrowserKitDriver;
-use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\MinkExtension\Context\RawMinkContext;
@@ -120,16 +119,6 @@ class BaseContext extends RawMinkContext
     protected function toRelativeUrl($url)
     {
         return parse_url($url, PHP_URL_PATH);
-    }
-
-    /**
-     * @param bool $supported
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    protected function supportsJavascript($supported = true)
-    {
-        $this->supportsDrivers([Selenium2Driver::class, 'DMore\ChromeDriver\ChromeDriver'], $supported);
     }
 
     /**

@@ -2,62 +2,11 @@
 
 namespace MOrtola\BehatSEOContexts\Context;
 
-use Behat\Mink\Exception\UnsupportedDriverActionException;
 use PHPUnit\Framework\Assert;
 
 class SocialContext extends BaseContext
 {
     const FACEBOOK_COMMENT_SELECTOR = '.fb-comments iframe';
-
-    /**
-     * @param $expectedText
-     *
-     * @throws \Exception
-     *
-     * @Then I should see :text in the facebook comment plugin
-     */
-    public function iShouldSeeInTheFacebookCommentPlugin($expectedText)
-    {
-        $this->facebookCommentPluginShouldBeLoaded();
-        $facebookIframe = $this->getSession()->getPage()->find('css', self::FACEBOOK_COMMENT_SELECTOR);
-        $this->getSession()->switchToIFrame($facebookIframe->getAttribute('name'));
-
-        $this->spin(
-            function () use ($expectedText) {
-                try {
-                    $facebookIframeContent = $this->getSession()->getPage()->getContent();
-
-                    return strpos($facebookIframeContent, $expectedText);
-                } catch (\Exception $e) {
-                    return false;
-                }
-            }
-        );
-
-        $this->getSession()->switchToIFrame(null);
-    }
-
-    /**
-     * @throws \Exception
-     * @throws UnsupportedDriverActionException
-     *
-     * @Then I should see a facebook comment plugin
-     */
-    public function facebookCommentPluginShouldBeLoaded()
-    {
-        $this->supportsJavascript();
-
-        try {
-            $this->spin(
-                function (SocialContext $context) {
-                    return $context->getSession()->getPage()->find('css', self::FACEBOOK_COMMENT_SELECTOR);
-                },
-                10
-            );
-        } catch (\Exception $e) {
-            throw new \Exception('No facebook comment plugin has been loaded.');
-        }
-    }
 
     /**
      * @Then /^the (twitter|facebook) open graph data should not satisfy (minimum|full) requirements$/

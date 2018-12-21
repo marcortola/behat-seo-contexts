@@ -99,8 +99,6 @@ Then critical css should exist in head
 ```
 ##### SocialContext
 ```
-Then I should see :text in the facebook comment plugin
-Then I should see a facebook comment plugin
 Then /^the (twitter|facebook) open graph data should satisfy (minimum|full) requirements$/
 ```
 
