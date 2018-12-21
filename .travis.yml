@@ -10,11 +10,19 @@ php:
   - 7.1
   - 7.2
 
+matrix:
+  include:
+    - php: 5.6
+      env: dependencies=lowest
+
 before_script:
   - composer serve &> /dev/null &
   - cp behat.yml.dist behat.yml
-  - composer install
-  - composer update --prefer-dist --no-progress --no-suggest
+  - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer install --no-interaction
+  - if [ "$dependencies" = "lowest" ];
+    then composer update --prefer-lowest --prefer-dist --no-progress --no-suggest;
+    else composer update --prefer-dist --no-progress --no-suggest;
+    fi;
 
 script:
-  - ./vendor/bin/behat --format=progres --no-interaction
+  - ./vendor/bin/behat --format=progress --no-interaction
