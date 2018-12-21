@@ -5,24 +5,15 @@ cache:
     - $HOME/.composer/cache
 
 php:
-  - 5.6
   - 7.0
   - 7.1
   - 7.2
-
-matrix:
-  include:
-    - php: 5.6
-      env: dependencies=lowest
 
 before_script:
   - composer serve &> /dev/null &
   - cp behat.yml.dist behat.yml
   - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer install --no-interaction
-  - if [ "$dependencies" = "lowest" ];
-    then composer update --prefer-lowest --prefer-dist --no-progress --no-suggest;
-    else composer update --prefer-dist --no-progress --no-suggest;
-    fi;
+  - composer update --prefer-dist --no-progress --no-suggest
 
 script:
   - ./vendor/bin/behat --format=progress --no-interaction
