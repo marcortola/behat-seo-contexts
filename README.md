@@ -118,7 +118,7 @@ Then critical CSS code should exist in head
 ```
 ##### SocialContext
 ```gherkin
-Then /^the (twitter|facebook) open graph data should satisfy (minimum|full) requirements$/
+Then /^the (Twitter|Facebook) Open Graph data should satisfy (minimum|full) requirements$/
 ```
 
 ### Examples

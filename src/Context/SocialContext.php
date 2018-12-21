@@ -7,7 +7,7 @@ use PHPUnit\Framework\Assert;
 class SocialContext extends BaseContext
 {
     /**
-     * @Then /^the (twitter|facebook) open graph data should not satisfy (minimum|full) requirements$/
+     * @Then /^the (Twitter|Facebook) Open Graph data should not satisfy (minimum|full) requirements$/
      */
     public function theOpenGraphDataShouldNotSatisfyRequirements(string $socialNetworkName, string $requirementsType)
     {
@@ -22,18 +22,18 @@ class SocialContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then /^the (twitter|facebook) open graph data should satisfy (minimum|full) requirements$/
+     * @Then /^the (Twitter|Facebook) Open Graph data should satisfy (minimum|full) requirements$/
      */
     public function theOpenGraphDataShouldSatisfyRequirements(string $socialNetworkName, string $requirementsType)
     {
         $fullRequirements = 'full' === $requirementsType ? true : false;
 
         switch ($socialNetworkName) {
-            case 'twitter':
+            case 'Twitter':
                 $this->validateTwitterOpenGraphData($fullRequirements);
 
                 break;
-            case 'facebook':
+            case 'Facebook':
                 $this->validateFacebookOpenGraphData($fullRequirements);
 
                 break;
