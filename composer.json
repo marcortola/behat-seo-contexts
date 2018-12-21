@@ -45,6 +45,7 @@
     }
   ],
   "scripts": {
-    "test-cs": "vendor/bin/ecs check src"
+    "test-cs": "vendor/bin/ecs check src",
+    "fix-cs": "vendor/bin/ecs check src --fix"
   }
 }
