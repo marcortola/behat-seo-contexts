@@ -26,15 +26,13 @@ class SocialContext extends BaseContext
      */
     public function theOpenGraphDataShouldSatisfyRequirements(string $socialNetworkName, string $requirementsType)
     {
-        $fullRequirements = 'full' === $requirementsType ? true : false;
-
         switch ($socialNetworkName) {
             case 'Twitter':
-                $this->validateTwitterOpenGraphData($fullRequirements);
+                $this->validateTwitterOpenGraphData('full' === $requirementsType);
 
                 break;
             case 'Facebook':
-                $this->validateFacebookOpenGraphData($fullRequirements);
+                $this->validateFacebookOpenGraphData('full' === $requirementsType);
 
                 break;
             default:
@@ -49,38 +47,25 @@ class SocialContext extends BaseContext
      */
     private function validateTwitterOpenGraphData(bool $fullRequirements = false)
     {
-        /* OG meta twitter:card */
-        $twitterCard = $this->getOGMetaContent('twitter:card');
-
         Assert::assertContains(
-            $twitterCard,
+            $this->getOGMetaContent('twitter:card'),
             ['summary', 'summary_large_image', 'app', 'player'],
-            sprintf('OG meta twitter:card contains invalid content "%s"', $twitterCard)
+            'OG meta twitter:card contains invalid content'
         );
 
-        /* OG meta twitter:title */
         $this->getOGMetaContent('twitter:title');
 
         if ($fullRequirements) {
-            /* OG meta twitter:image (optional) */
-            $twitterImage = $this->getOGMetaContent('twitter:image');
-
             Assert::assertNotFalse(
-                filter_var($twitterImage, FILTER_VALIDATE_URL)
+                filter_var($this->getOGMetaContent('twitter:image'), FILTER_VALIDATE_URL)
             );
-
-            $twitterImageExtension = pathinfo($twitterImage)['extension'];
 
             Assert::assertContains(
-                $twitterImageExtension,
+                pathinfo($this->getOGMetaContent('twitter:image'))['extension'],
                 ['jpg', 'jpeg', 'webp', 'png', 'gif'],
-                sprintf(
-                    'OG meta twitter:image has valid extension %s. Allowed are: jpg/jpeg, png, webp, gif',
-                    $twitterImageExtension
-                )
+                'OG meta twitter:image has valid extension. Allowed are: jpg/jpeg, png, webp, gif'
             );
 
-            /* OG meta twitter:description (optional) */
             $this->getOGMetaContent('twitter:description');
         }
     }
@@ -90,22 +75,22 @@ class SocialContext extends BaseContext
      */
     private function getOGMetaContent(string $property): string
     {
-        $xpath = sprintf('//head/meta[@property="%1$s" or @name="%1$s"]', $property);
-        $meta = $this->getSession()->getPage()->find('xpath', $xpath);
+        $ogMeta = $this->getSession()->getPage()->find(
+            'xpath',
+            sprintf('//head/meta[@property="%1$s" or @name="%1$s"]', $property)
+        );
 
         Assert::assertNotNull(
-            $meta,
+            $ogMeta,
             sprintf('Open Graph meta %s does not exist', $property)
         );
 
-        $metaContent = $meta->getAttribute('content');
-
         Assert::assertNotEmpty(
-            $metaContent,
+            $ogMeta->getAttribute('content'),
             sprintf('Open Graph meta %s should not be empty', $property)
         );
 
-        return $metaContent;
+        return $ogMeta->getAttribute('content');
     }
 
     /**
@@ -113,92 +98,66 @@ class SocialContext extends BaseContext
      */
     private function validateFacebookOpenGraphData(bool $fullRequirements = false)
     {
-        /* OG meta og:url */
-        $facebookUrl = $this->getOGMetaContent('og:url');
-
         Assert::assertNotFalse(
-            filter_var($facebookUrl, FILTER_VALIDATE_URL)
+            filter_var($this->getOGMetaContent('og:url'), FILTER_VALIDATE_URL)
         );
 
         Assert::assertEquals(
-            $facebookUrl,
+            $this->getOGMetaContent('og:url'),
             $this->getCurrentUrl(),
             'OG meta og:url does not match expected url'
         );
 
-        /* OG meta og:title */
         $this->getOGMetaContent('og:title');
-
-        /* OG meta og:description */
         $this->getOGMetaContent('og:description');
 
-        /* OG meta og:image */
-        $facebookImage = $this->getOGMetaContent('og:image');
-
         Assert::assertNotFalse(
-            filter_var($facebookImage, FILTER_VALIDATE_URL)
+            filter_var($this->getOGMetaContent('og:image'), FILTER_VALIDATE_URL)
         );
 
-        $facebookImageExtension = pathinfo($facebookImage)['extension'];
-
         Assert::assertContains(
-            $facebookImageExtension,
+            pathinfo($this->getOGMetaContent('og:image'))['extension'],
             ['jpg', 'jpeg', 'png', 'gif'],
-            sprintf(
-                'OG meta og:image has valid extension %s. Allowed are: jpg/jpeg, png, gif',
-                $facebookImageExtension
-            )
+            'OG meta og:image has valid extension. Allowed are: jpg/jpeg, png, gif'
         );
 
         if ($fullRequirements) {
-            /* OG meta og:type (optional) */
-            $facebookType = $this->getOGMetaContent('og:type');
-
-            $allowedFacebookTypes = [
-                'article',
-                'book',
-                'books.author',
-                'books.book',
-                'books.genre',
-                'business.business',
-                'fitness.course',
-                'game.achievement',
-                'music.album',
-                'music.playlist',
-                'music.radio_station',
-                'music.song',
-                'place',
-                'product',
-                'product.group',
-                'product.item',
-                'profile',
-                'restaurant.menu',
-                'restaurant.menu_item',
-                'restaurant.menu_section',
-                'restaurant.restaurant',
-                'video.episode',
-                'video.movie',
-                'video.other',
-                'video.tv_show',
-            ];
-
             Assert::assertContains(
-                $facebookType,
-                $allowedFacebookTypes,
-                sprintf(
-                    'OG meta og:type contains invalid content "%s". Allowed: %s',
-                    $facebookType,
-                    implode(',', $allowedFacebookTypes)
-                )
+                $this->getOGMetaContent('og:type'),
+                [
+                    'article',
+                    'book',
+                    'books.author',
+                    'books.book',
+                    'books.genre',
+                    'business.business',
+                    'fitness.course',
+                    'game.achievement',
+                    'music.album',
+                    'music.playlist',
+                    'music.radio_station',
+                    'music.song',
+                    'place',
+                    'product',
+                    'product.group',
+                    'product.item',
+                    'profile',
+                    'restaurant.menu',
+                    'restaurant.menu_item',
+                    'restaurant.menu_section',
+                    'restaurant.restaurant',
+                    'video.episode',
+                    'video.movie',
+                    'video.other',
+                    'video.tv_show',
+                ],
+                'OG meta og:type contains invalid content.'
             );
-
-            /* OG meta og:locale (optional) */
-            $facebookLocale = $this->getOGMetaContent('og:locale');
 
             Assert::assertRegExp(
                 '/^[a-z]{2}_[A-Z]{2}$/',
-                $facebookLocale,
-                sprintf('OG meta og:locale does not follow the right format az_AZ. Actual: %s', $facebookLocale)
+                $this->getOGMetaContent('og:locale'),
+                'OG meta og:locale does not follow the right format az_AZ.'
             );
         }
     }

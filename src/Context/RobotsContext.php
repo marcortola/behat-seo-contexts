@@ -3,6 +3,7 @@
 namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Exception\UnsupportedDriverActionException;
+use Behat\Symfony2Extension\Driver\KernelDriver;
 use PHPUnit\Framework\Assert;
 use vipnytt\RobotsTxtParser\UriClient;
 
@@ -51,7 +52,7 @@ class RobotsContext extends BaseContext
      */
     public function iShouldBeAbleToGetTheSitemapUrl()
     {
-        $this->supportsSymfony(false);
+        $this->doesNotSupportDriver(KernelDriver::class);
 
         $sitemaps = $this->getRobotsClient()->sitemap()->export();
 

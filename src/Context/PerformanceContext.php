@@ -4,11 +4,12 @@ namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
+use Behat\Symfony2Extension\Driver\KernelDriver;
 use PHPUnit\Framework\Assert;
 
 class PerformanceContext extends BaseContext
 {
-    const RESOURCE_TYPES = [
+    const RES_EXT = [
         'PNG' => 'png',
         'HTML' => 'html',
         'JPEG' => 'jpeg',
@@ -27,14 +28,12 @@ class PerformanceContext extends BaseContext
      */
     public function javascriptFilesShouldLoadAsync()
     {
-        $scriptElements = $this->getPageResources(self::RESOURCE_TYPES['JAVASCRIPT']);
-
-        foreach ($scriptElements as $scriptElement) {
+        foreach ($this->getPageResources(self::RES_EXT['JAVASCRIPT']) as $scriptElement) {
             Assert::assertTrue(
                 $scriptElement->hasAttribute('async') || $scriptElement->hasAttribute('defer'),
                 sprintf(
                     'Javascript file %s is render blocking in %s',
-                    $this->getResourceUrl($scriptElement, self::RESOURCE_TYPES['JAVASCRIPT']),
+                    $this->getResourceUrl($scriptElement, self::RES_EXT['JAVASCRIPT']),
                     $this->getCurrentUrl()
                 )
             );
@@ -43,72 +42,43 @@ class PerformanceContext extends BaseContext
 
     /**
      * @return NodeElement[]
-     * @throws \Exception
      */
-    private function getPageResources(string $resourceType, bool $selfHosted = true, bool $expected = true): array
+    private function getPageResources(string $resourceType, bool $selfHosted = true): array
     {
-        switch ($resourceType) {
-            case self::RESOURCE_TYPES['JPEG']:
-                $xpath = '//img[contains(@src,".jpeg")]';
-
-                break;
-            case self::RESOURCE_TYPES['PNG']:
-                $xpath = '//img[contains(@src,".png")]';
-
-                break;
-            case self::RESOURCE_TYPES['GIF']:
-                $xpath = '//img[contains(@src,".gif")]';
-
-                break;
-            case self::RESOURCE_TYPES['ICO']:
-                $xpath = '//link[contains(@href,".ico")]';
-
-                break;
-            case self::RESOURCE_TYPES['CSS']:
-                $xpath = '//link[contains(@href,".css")]';
-
-                break;
-            case self::RESOURCE_TYPES['JAVASCRIPT']:
-                $xpath = '//script[contains(@src,".js")]';
-
-                break;
-            case self::RESOURCE_TYPES['CSS_INLINE_HEAD']:
-                $xpath = '//head//style';
-
-                break;
-            case self::RESOURCE_TYPES['CSS_LINK_HEAD']:
-                $xpath = '//head//link[contains(@href,".css")]';
-
-                break;
-            default:
-                throw new \Exception(
-                    sprintf('TODO: Must implement %s resource type xpath constructor', $resourceType)
-                );
+        if (!$xpath = $this->getResourceXpath($resourceType)) {
+            return [];
         }
 
-        if (true === $selfHosted) {
+        if ($selfHosted) {
             $xpath = preg_replace(
                 '/\[contains\(@(.*),/',
-                '[(starts-with(@$1,"' . $this->webUrl . '") or starts-with(@$1,"/")) and contains(@$1,',
+                sprintf('[(starts-with(@$1,"%s") or starts-with(@$1,"/")) and contains(@$1,', $this->webUrl),
                 $xpath
             );
         }
 
-        $elements = $this->getSession()->getPage()->findAll('xpath', $xpath);
+        return $this->getSession()->getPage()->findAll('xpath', $xpath);
+    }
 
-        if (true === $expected) {
-            Assert::assertNotEmpty(
-                $elements,
-                sprintf(
-                    'No%s %s files are found in %s',
-                    $selfHosted ? ' self hosted' : '',
-                    $resourceType,
-                    $this->getCurrentUrl()
-                )
-            );
+    private function getResourceXpath(string $resourceType): string
+    {
+        if (in_array($resourceType, [self::RES_EXT['JPEG'], self::RES_EXT['PNG'], self::RES_EXT['GIF']])) {
+            return sprintf('//img[contains(@src,".%s")]', $resourceType);
+        }
+        if (in_array($resourceType, [self::RES_EXT['ICO'], self::RES_EXT['CSS']])) {
+            return sprintf('//link[contains(@href,".%s")]', $resourceType);
+        }
+        if (self::RES_EXT['JAVASCRIPT'] === $resourceType) {
+            return '//script[contains(@src,".js")]';
+        }
+        if (self::RES_EXT['CSS_INLINE_HEAD'] === $resourceType) {
+            return '//head//style';
+        }
+        if (self::RES_EXT['CSS_LINK_HEAD'] === $resourceType) {
+            return '//head//link[contains(@href,".css")]';
         }
 
-        return $elements;
+        return '';
     }
 
     /**
@@ -118,34 +88,32 @@ class PerformanceContext extends BaseContext
     {
         $this->assertResourceTypeIsValid($resourceType);
 
-        switch ($resourceType) {
-            case self::RESOURCE_TYPES['PNG']:
-            case self::RESOURCE_TYPES['JPEG']:
-            case self::RESOURCE_TYPES['GIF']:
-            case self::RESOURCE_TYPES['JAVASCRIPT']:
-                return $element->getAttribute('src');
-
-                break;
-            case self::RESOURCE_TYPES['CSS']:
-            case self::RESOURCE_TYPES['ICO']:
-                return $element->getAttribute('href');
-
-                break;
-            default:
-                throw new \Exception(
-                    sprintf('%s resource type url is not implemented', $resourceType)
-                );
+        if (in_array($resourceType, [
+            self::RES_EXT['PNG'],
+            self::RES_EXT['JPEG'],
+            self::RES_EXT['GIF'],
+            self::RES_EXT['JAVASCRIPT']
+        ])) {
+            return $element->getAttribute('src');
         }
+
+        if (in_array($resourceType, [self::RES_EXT['CSS'], self::RES_EXT['ICO']])) {
+            return $element->getAttribute('href');
+        }
+
+        throw new \Exception(
+            sprintf('%s resource type url is not implemented', $resourceType)
+        );
     }
 
     private function assertResourceTypeIsValid(string $resourceType)
     {
-        if (!in_array($resourceType, self::RESOURCE_TYPES)) {
+        if (!in_array($resourceType, self::RES_EXT)) {
             throw new \InvalidArgumentException(
                 sprintf(
                     '%s resource type is not valid. Allowed types are: %s',
                     $resourceType,
-                    implode(',', self::RESOURCE_TYPES)
+                    implode(',', self::RES_EXT)
                 )
             );
         }
@@ -160,41 +128,15 @@ class PerformanceContext extends BaseContext
     {
         $this->assertContentIsMinified(
             $this->getSession()->getPage()->getContent(),
-            self::RESOURCE_TYPES['HTML']
+            $this->minimizeHtml($this->getSession()->getPage()->getContent())
         );
     }
 
-    /**
-     * @throws \Exception
-     */
-    private function assertContentIsMinified(string $content, string $resourceType)
+    private function assertContentIsMinified(string $content, string $contentMinified)
     {
-        switch ($resourceType) {
-            case self::RESOURCE_TYPES['CSS']:
-                $contentMinified = $this->minimizeCss($content);
-
-                break;
-            case self::RESOURCE_TYPES['JAVASCRIPT']:
-                $contentMinified = $this->minimizeJs($content);
-
-                break;
-            case self::RESOURCE_TYPES['HTML']:
-                $contentMinified = $this->minimizeHtml($content);
-
-                break;
-            default:
-                throw new \Exception(
-                    sprintf('Resource type "%s" can not be minified', $resourceType)
-                );
-        }
-
         Assert::assertTrue(
             $content == $contentMinified,
-            sprintf(
-                'Page %s %s code is not minified.',
-                $this->getCurrentUrl(),
-                $resourceType
-            )
+            'Code is not minified.'
         );
     }
 
@@ -242,17 +184,10 @@ class PerformanceContext extends BaseContext
      */
     public function cssFilesShouldLoadDeferred()
     {
-        $cssElements = $this->getPageResources(
-            self::RESOURCE_TYPES['CSS_LINK_HEAD'],
-            true,
-            false
-        );
-
         Assert::assertEmpty(
-            $cssElements,
+            $this->getPageResources(self::RES_EXT['CSS_LINK_HEAD'], true),
             sprintf(
-                '%s self hosted css files are loading in head in %s',
-                count($cssElements),
+                'Some self hosted css files are loading in head in %s',
                 $this->getCurrentUrl()
             )
         );
@@ -265,12 +200,8 @@ class PerformanceContext extends BaseContext
      */
     public function criticalCssShouldExistInHead()
     {
-        $styleCssElements = $this->getPageResources(
-            self::RESOURCE_TYPES['CSS_INLINE_HEAD']
-        );
-
         Assert::assertNotEmpty(
-            $styleCssElements,
+            $this->getPageResources(self::RES_EXT['CSS_INLINE_HEAD']),
             sprintf(
                 'No inline css is loading in head in %s',
                 $this->getCurrentUrl()
@@ -310,18 +241,19 @@ class PerformanceContext extends BaseContext
      */
     public function cssOrJavascriptFilesShouldBeMinified(string $resourceType)
     {
-        $this->supportsSymfony(false);
+        $this->doesNotSupportDriver(KernelDriver::class);
 
         $resourceType = 'Javascript' === $resourceType ? 'js' : 'css';
 
-        $elements = $this->getPageResources($resourceType);
-        foreach ($elements as $element) {
-            $elementUrl = $this->getResourceUrl($element, $resourceType);
+        foreach ($this->getPageResources($resourceType) as $element) {
+            $this->getSession()->visit($this->getResourceUrl($element, $resourceType));
 
-            $this->getSession()->visit($elementUrl);
-
-            $content = $this->getSession()->getPage()->getContent();
-            $this->assertContentIsMinified($content, $resourceType);
+            $this->assertContentIsMinified(
+                $this->getSession()->getPage()->getContent(),
+                'js' === $resourceType ?
+                    $this->minimizeJs($this->getSession()->getPage()->getContent())
+                    : $this->minimizeCss($this->getSession()->getPage()->getContent())
+            );
 
             $this->getSession()->back();
         }
@@ -358,19 +290,15 @@ class PerformanceContext extends BaseContext
      */
     public function browserCacheMustBeEnabledForResources(string $resourceType)
     {
-        $this->supportsSymfony(false);
+        $this->doesNotSupportDriver(KernelDriver::class);
 
         $element = $this->getPageResources($resourceType);
-        $element = count($element) ? current($element) : null;
+        $element = 0 < count($element) ? current($element) : null;
 
-        $elementUrl = $this->getResourceUrl($element, $resourceType);
-
-        $this->getSession()->visit($elementUrl);
-
-        $responseHeaders = $this->getSession()->getResponseHeaders();
+        $this->getSession()->visit($this->getResourceUrl($element, $resourceType));
 
         Assert::assertTrue(
-            isset($responseHeaders['Cache-Control']),
+            isset($this->getSession()->getResponseHeaders()['Cache-Control']),
             sprintf(
                 'Browser cache is not enabled for %s resources. Cache-Control HTTP header was not received.',
                 $resourceType
@@ -379,7 +307,7 @@ class PerformanceContext extends BaseContext
 
         Assert::assertNotContains(
             '-no',
-            $responseHeaders['Cache-Control'],
+            $this->getSession()->getResponseHeaders()['Cache-Control'],
             sprintf(
                 'Browser cache is not enabled for %s resources. Cache-Control HTTP header is "no-cache".',
                 $resourceType

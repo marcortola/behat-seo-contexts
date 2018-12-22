@@ -31,18 +31,10 @@ class SitemapContext extends BaseContext
      */
     private function getSitemapXml(string $sitemapUrl): \DOMDocument
     {
-        $sitemapUrl = $this->toAbsoluteUrl($sitemapUrl);
-
         $xml = new \DOMDocument();
-        @$xmlLoaded = $xml->load($sitemapUrl);
+        @$xmlLoaded = $xml->load($this->toAbsoluteUrl($sitemapUrl));
 
-        Assert::assertNotFalse(
-            $xmlLoaded,
-            sprintf(
-                'Error loading %s Sitemap using DOMDocument',
-                $sitemapUrl
-            )
-        );
+        Assert::assertNotFalse($xmlLoaded, 'Error loading %s Sitemap using DOMDocument');
 
         return $xml;
     }
@@ -77,7 +69,7 @@ class SitemapContext extends BaseContext
      */
     private function assertSitemapHasBeenRead()
     {
-        if (null == $this->sitemapXml) {
+        if (!$this->sitemapXml) {
             throw new \Exception(
                 'You should execute "Given the sitemap :sitemapUrl" step before executing this step.'
             );
@@ -238,10 +230,9 @@ class SitemapContext extends BaseContext
      */
     public function theSitemapShouldBeValid(string $sitemapType = '')
     {
-        $sitemapType = trim($sitemapType);
         $this->assertSitemapHasBeenRead();
 
-        switch ($sitemapType) {
+        switch (trim($sitemapType)) {
             case 'index':
                 $sitemapSchemaFile = self::SITEMAP_INDEX_SCHEMA_FILE;
 

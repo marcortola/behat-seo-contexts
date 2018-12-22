@@ -2,11 +2,18 @@
 
 namespace MOrtola\BehatSEOContexts\Context;
 
+use HtmlValidator\Response;
 use HtmlValidator\Validator;
 use PHPUnit\Framework\ExpectationFailedException;
 
 class HTMLContext extends BaseContext
 {
+    const VALIDATION_SERVICES = [
+        Validator::DEFAULT_VALIDATOR_URL,
+        'https://validator.nu/',
+        'https://validator.w3.org/nu/'
+    ];
+
     /**
      * @throws \Exception
      *
@@ -14,18 +21,11 @@ class HTMLContext extends BaseContext
      */
     public function thePageHtmlMarkupShouldBeValid()
     {
-        $pageHtmlContent = $this->getSession()->getPage()->getContent();
-
-        $validatorServices = [
-            Validator::DEFAULT_VALIDATOR_URL,
-            'https://validator.nu/',
-            'https://validator.w3.org/nu/',
-        ];
-
-        foreach ($validatorServices as $validatorService) {
+        foreach (self::VALIDATION_SERVICES as $validatorService) {
             try {
                 $validator = new Validator($validatorService);
-                $validatorResult = $validator->validateDocument($pageHtmlContent);
+                /** @var Response $validatorResult */
+                $validatorResult = $validator->validateDocument($this->getSession()->getPage()->getContent());
                 break;
             } catch (\Exception $e) {
             }
@@ -33,17 +33,13 @@ class HTMLContext extends BaseContext
 
         if (!isset($validatorResult)) {
             throw new \Exception('HTML validation services are not working.');
-        }
-
-        $htmlErrors = $validatorResult->getErrors();
-
-        if (isset($htmlErrors[0])) {
+        } elseif (isset($validatorResult->getErrors()[0])) {
             throw new ExpectationFailedException(
                 sprintf(
                     'HTML markup validation error: Line %s: "%s" - %s in %s',
-                    $htmlErrors[0]->getFirstLine(),
-                    $htmlErrors[0]->getExtract(),
-                    $htmlErrors[0]->getText(),
+                    $validatorResult->getErrors()[0]->getFirstLine(),
+                    $validatorResult->getErrors()[0]->getExtract(),
+                    $validatorResult->getErrors()[0]->getText(),
                     $this->getCurrentUrl()
                 )
             );

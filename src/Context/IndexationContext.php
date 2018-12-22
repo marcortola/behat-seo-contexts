@@ -50,7 +50,7 @@ class IndexationContext extends BaseContext
 
         $robotsHeaderTag = $this->getSession()->getResponseHeader('X-Robots-Tag');
 
-        if (null != $robotsHeaderTag) {
+        if ($robotsHeaderTag) {
             Assert::assertNotContains(
                 'noindex',
                 strtolower($robotsHeaderTag),

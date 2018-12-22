@@ -2,6 +2,7 @@
 
 namespace MOrtola\BehatSEOContexts\Context;
 
+use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use PHPUnit\Framework\Assert;
 use Symfony\Component\BrowserKit\Client;
@@ -16,6 +17,7 @@ class RedirectContext extends BaseContext
         try {
             $this->iFollowRedirects();
         } catch (UnsupportedDriverActionException $e) {
+            return;
         }
     }
 
@@ -34,7 +36,7 @@ class RedirectContext extends BaseContext
      */
     private function getClient(): Client
     {
-        $this->supportsBrowserKitDriver();
+        $this->supportsDriver(BrowserKitDriver::class);
 
         return $this->getSession()->getDriver()->getClient();
     }
@@ -50,6 +52,7 @@ class RedirectContext extends BaseContext
     }
 
     /**
+     * @throws \Exception
      * @throws UnsupportedDriverActionException
      *
      * @Then I should be redirected to :url

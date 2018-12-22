@@ -2,7 +2,6 @@
 
 namespace MOrtola\BehatSEOContexts\Context;
 
-use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\MinkExtension\Context\RawMinkContext;
@@ -48,14 +47,12 @@ class BaseContext extends RawMinkContext
      */
     protected function spin(callable $closure, int $seconds = 5): bool
     {
-        $fraction = 4;
-        $max = $seconds * $fraction;
         $i = 1;
-        while ($i++ <= $max) {
+        while ($i++ <= $seconds * 4) {
             if ($closure($this)) {
                 return true;
             }
-            $this->getSession()->wait(1000 / $fraction);
+            $this->getSession()->wait(1000 / 4);
         }
         $backtrace = debug_backtrace();
 
@@ -87,9 +84,11 @@ class BaseContext extends RawMinkContext
 
     protected function getCurrentUrl(bool $relative = false): string
     {
-        $url = $this->getSession()->getCurrentUrl();
+        if ($relative) {
+            $this->toRelativeUrl($this->getSession()->getCurrentUrl());
+        }
 
-        return $relative ? $this->toRelativeUrl($url) : $url;
+        return $this->getSession()->getCurrentUrl();
     }
 
     protected function toRelativeUrl(string $url): string
@@ -100,34 +99,12 @@ class BaseContext extends RawMinkContext
     /**
      * @throws UnsupportedDriverActionException
      */
-    protected function supportsSymfony(bool $supported = true)
+    protected function supportsDriver(string $driverClass)
     {
-        $this->supportsDrivers([KernelDriver::class], $supported);
-    }
-
-    /**
-     * @throws UnsupportedDriverActionException
-     */
-    private function supportsDrivers(array $driverClasses, bool $supported)
-    {
-        $driver = $this->getSession()->getDriver();
-
-        $isSearchedDriver = false;
-        foreach ($driverClasses as $driverClass) {
-            if (is_a($driver, $driverClass)) {
-                $isSearchedDriver = true;
-            }
-        }
-
-        if ($supported && !$isSearchedDriver) {
+        if (!is_a($this->getSession()->getDriver(), $driverClass)) {
             throw new UnsupportedDriverActionException(
-                sprintf('This step is only supported by the %s driver', implode(',', $driverClasses)),
-                $driver
-            );
-        } elseif (!$supported && $isSearchedDriver) {
-            throw new UnsupportedDriverActionException(
-                sprintf('This step is not supported by the %s driver', implode(',', $driverClasses)),
-                $driver
+                sprintf('This step is only supported by the %s driver', $driverClass),
+                $this->getSession()->getDriver()
             );
         }
     }
@@ -135,9 +112,14 @@ class BaseContext extends RawMinkContext
     /**
      * @throws UnsupportedDriverActionException
      */
-    protected function supportsBrowserKitDriver(bool $supported = true)
+    protected function doesNotSupportDriver(string $driverClass)
     {
-        $this->supportsDrivers([BrowserKitDriver::class], $supported);
+        if (is_a($this->getSession()->getDriver(), $driverClass)) {
+            throw new UnsupportedDriverActionException(
+                sprintf('This step is not supported by the %s driver', $driverClass),
+                $this->getSession()->getDriver()
+            );
+        }
     }
 
     protected function assertInverse(callable $callableStepDefinition, string $exceptionMessage = '')
