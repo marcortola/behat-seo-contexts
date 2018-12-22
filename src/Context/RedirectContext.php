@@ -1,6 +1,6 @@
 <?php
 
-namespace MOrtola\BehatSEOContexts;
+namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
@@ -10,21 +10,21 @@ use Symfony\Component\BrowserKit\Client;
 class RedirectContext extends BaseContext
 {
     /**
-     * @throws UnsupportedDriverActionException
-     *
      * @AfterScenario
      */
     public function enableFollowRedirects()
     {
-        if ($this->getSession()->getDriver() instanceof BrowserKitDriver) {
+        try {
             $this->iFollowRedirects();
+        } catch (UnsupportedDriverActionException $e) {
+            return;
         }
     }
 
     /**
      * @throws UnsupportedDriverActionException
      *
-     * @Given /^I follow redirects$/
+     * @Given I follow redirects
      */
     public function iFollowRedirects()
     {
@@ -32,12 +32,11 @@ class RedirectContext extends BaseContext
     }
 
     /**
-     * @return Client
      * @throws UnsupportedDriverActionException
      */
-    private function getClient()
+    private function getClient(): Client
     {
-        $this->supportsBrowserKitDriver();
+        $this->supportsDriver(BrowserKitDriver::class);
 
         return $this->getSession()->getDriver()->getClient();
     }
@@ -45,7 +44,7 @@ class RedirectContext extends BaseContext
     /**
      * @throws UnsupportedDriverActionException
      *
-     * @Given /^I do not follow redirects$/
+     * @Given I do not follow redirects
      */
     public function iDoNotFollowRedirects()
     {
@@ -53,34 +52,29 @@ class RedirectContext extends BaseContext
     }
 
     /**
-     * @param string $page
-     *
      * @throws \Exception
      * @throws UnsupportedDriverActionException
      *
-     * @Then /^I (?:am|should be) redirected(?: to "([^"]*)")?$/
+     * @Then I should be redirected to :url
      */
-    public function iAmRedirected($page)
+    public function iShouldBeRedirected(string $url)
     {
-        $headers = $this->getSession()->getResponseHeaders();
+        $headers = array_change_key_case($this->getSession()->getResponseHeaders(), CASE_LOWER);
 
-        if (empty($headers['Location']) && empty($headers['location'])) {
+        if (empty($headers['location'])) {
             throw new \Exception('The response should contain a "Location" header');
         }
 
-        $headerLocation = empty($headers['Location']) ? $headers['location'] : $headers['Location'];
-
-        if (is_array($headerLocation)) {
-            $headerLocation = current($headerLocation);
+        if (isset($headers['location'][0])) {
+            $headers['location'] = $headers['location'][0];
         }
 
         Assert::assertTrue(
-            $headerLocation === $page || $this->locatePath($page) === $this->locatePath($headerLocation),
+            $headers['location'] === $url || $this->locatePath($url) === $this->locatePath($headers['location']),
             'The "Location" header does not redirect to the correct URI'
         );
 
-        $client = $this->getClient();
-        $client->followRedirects(true);
-        $client->followRedirect();
+        $this->getClient()->followRedirects(true);
+        $this->getClient()->followRedirect();
     }
 }

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>http://localhost:8080/sitemap/standard-sitemap.xml</loc>
+        <lastmod>2017-01-01</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>http://localhost:8080/sitemap/standard-sitemap.xml?1</loc>
+        <changefreq>daily</changefreq>
+    </url>
+    <url>
+        <loc>http://localhost:8080/sitemap/standard-sitemap.xml?2</loc>
+        <lastmod>2018-12-21</lastmod>
+        <changefreq>weekly</changefreq>
+    </url>
+    <url>
+        <loc>http://localhost:8080/sitemap/standard-sitemap.xml?3</loc>
+        <lastmod>2018-12-20T08:00:00+00:00</lastmod>
+        <changefreq>always</changefreq>
+        <priority>0.3</priority>
+    </url>
+    <url>
+        <loc>http://localhost:8080/sitemap/standard-sitemap.xml?4</loc>
+        <lastmod>2018-12-20</lastmod>
+        <changefreq>never</changefreq>
+    </url>
+</urlset>

@@ -1,8 +1,9 @@
 <?php
 
-namespace MOrtola\BehatSEOContexts;
+namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Exception\UnsupportedDriverActionException;
+use Behat\Symfony2Extension\Driver\KernelDriver;
 use PHPUnit\Framework\Assert;
 use vipnytt\RobotsTxtParser\UriClient;
 
@@ -14,23 +15,19 @@ class RobotsContext extends BaseContext
     private $crawlerUserAgent = 'Googlebot';
 
     /**
-     * @param string $crawlerUserAgent
-     *
      * @Given I am a :crawlerUserAgent crawler
      */
-    public function iAmACrawler($crawlerUserAgent)
+    public function iAmACrawler(string $crawlerUserAgent)
     {
         $this->crawlerUserAgent = $crawlerUserAgent;
     }
 
     /**
-     * @param string $resource
-     *
      * @throws \Exception
      *
      * @Then I should not be able to crawl :resource
      */
-    public function iShouldNotBeAbleToCrawl($resource)
+    public function iShouldNotBeAbleToCrawl(string $resource)
     {
         Assert::assertFalse(
             $this->getRobotsClient()->userAgent($this->crawlerUserAgent)->isAllowed($resource),
@@ -42,10 +39,7 @@ class RobotsContext extends BaseContext
         );
     }
 
-    /**
-     * @return UriClient
-     */
-    private function getRobotsClient()
+    private function getRobotsClient(): UriClient
     {
         return new UriClient($this->webUrl);
     }
@@ -58,7 +52,7 @@ class RobotsContext extends BaseContext
      */
     public function iShouldBeAbleToGetTheSitemapUrl()
     {
-        $this->supportsSymfony(false);
+        $this->doesNotSupportDriver(KernelDriver::class);
 
         $sitemaps = $this->getRobotsClient()->sitemap()->export();
 
@@ -98,74 +92,9 @@ class RobotsContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then the page should not be noindex
-     */
-    public function thePageShouldNotBeNoindex()
-    {
-        $metaRobotsElement = $this->getSession()->getPage()->find(
-            'xpath',
-            '//head/meta[@name="robots"]'
-        );
-
-        if (null != $metaRobotsElement) {
-            $metaRobots = $metaRobotsElement->getAttribute('content');
-
-            Assert::assertNotContains(
-                'noindex',
-                strtolower($metaRobots),
-                sprintf(
-                    'Url %s should not be noindex: %s',
-                    $this->getCurrentUrl(),
-                    $metaRobotsElement->getOuterHtml()
-                )
-            );
-
-            Assert::assertNotContains(
-                'nofollow',
-                strtolower($metaRobots),
-                sprintf(
-                    'Url %s should not have meta robots with nofollow value: %s',
-                    $this->getCurrentUrl(),
-                    $metaRobotsElement->getOuterHtml()
-                )
-            );
-        }
-
-        $robotsHeaderTag = $this->getSession()->getResponseHeader('X-Robots-Tag');
-
-        if (null != $robotsHeaderTag) {
-            Assert::assertNotContains(
-                'noindex',
-                strtolower($robotsHeaderTag),
-                sprintf(
-                    'Url %s should not send X-Robots-Tag HTTP header with noindex value: %s',
-                    $this->getCurrentUrl(),
-                    $robotsHeaderTag
-                )
-            );
-
-            Assert::assertNotContains(
-                'nofollow',
-                strtolower($robotsHeaderTag),
-                sprintf(
-                    'Url %s should not send X-Robots-Tag HTTP header with nofollow value: %s',
-                    $this->getCurrentUrl(),
-                    $robotsHeaderTag
-                )
-            );
-        }
-
-        $this->iShouldBeAbleToCrawl($this->getCurrentUrl());
-    }
-
-    /**
-     * @param string $resource
-     *
-     * @throws \Exception
-     *
      * @Then I should be able to crawl :resource
      */
-    public function iShouldBeAbleToCrawl($resource)
+    public function iShouldBeAbleToCrawl(string $resource)
     {
         Assert::assertTrue(
             $this->getRobotsClient()->userAgent($this->crawlerUserAgent)->isAllowed($resource),
