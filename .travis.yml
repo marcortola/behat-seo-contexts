@@ -1,0 +1,19 @@
+language: php
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+php:
+  - 7.0
+  - 7.1
+  - 7.2
+
+before_script:
+  - composer serve &> /dev/null &
+  - cp behat.yml.dist behat.yml
+  - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer install --no-interaction
+  - composer update --prefer-dist --no-progress
+
+script:
+  - ./vendor/bin/behat --format=progress --no-interaction

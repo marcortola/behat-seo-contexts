@@ -8,3 +8,4 @@
 out/
 .idea
 /composer.lock
+/behat.yml
