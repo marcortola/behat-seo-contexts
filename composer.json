@@ -46,7 +46,7 @@
     }
   ],
   "scripts": {
-    "serve": "php -S localhost:8080 -t tests/fixtures/web",
+    "serve": "php -S localhost:8080 -t tests/fixtures/web & php -S localhost:8081 -t tests/fixtures/web",
     "test-cs": "vendor/bin/ecs check src",
     "fix-cs": "vendor/bin/ecs check src --fix",
     "test": "vendor/bin/behat"

@@ -295,7 +295,7 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @Then /^browser cache should not be enabled for (.+\..+|external|internal) (png|jpeg|gif|ico|js|css) resources$/
+     * @Then /^browser cache should not be enabled for (.+|external|internal) (png|jpeg|gif|ico|js|css) resources$/
      * @param string $host
      * @param string $resourceType
      */
@@ -315,7 +315,7 @@ class PerformanceContext extends BaseContext
      *
      * @throws UnsupportedDriverActionException
      * @throws \Exception
-     * @Then /^browser cache should be enabled for (.+\..+|external|internal) (png|jpeg|gif|ico|js|css) resources$/
+     * @Then /^browser cache should be enabled for (.+|external|internal) (png|jpeg|gif|ico|js|css) resources$/
      */
     public function browserCacheMustBeEnabledForResources(string $host, string $resourceType)
     {

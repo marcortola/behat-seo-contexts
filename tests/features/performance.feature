@@ -40,7 +40,10 @@ Feature: Performance feature
     Then browser cache should be enabled for external css resources
 
     When I am on "/performance/cache/enabled-external-browser-cache.html"
-    Then browser cache should be enabled for https://stackpath.bootstrapcdn.com css resources
+    Then browser cache should be enabled for http://localhost:8081 css resources
+
+    When I am on "/performance/cache/disabled-external-browser-cache.html"
+    Then browser cache should not be enabled for http://localhost:8081 css resources
 
   Scenario: Testing JS loading async or defer
     Given I am on "/performance/js/async.html"
