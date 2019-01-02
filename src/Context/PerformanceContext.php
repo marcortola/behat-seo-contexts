@@ -60,7 +60,7 @@ class PerformanceContext extends BaseContext
                 sprintf('[(starts-with(@$1,"%s") or starts-with(@$1,"/")) and contains(@$1,', $this->webUrl),
                 $xpath
             );
-        } elseif (!$selfHosted && $host === 'external') {
+        } elseif ($host === 'external') {
             $xpath = preg_replace(
                 '/\[contains\(@(.*),/',
                 '[not(starts-with(@$1,"' . $this->webUrl . '") or starts-with(@$1,"/")) and contains(@$1,',
