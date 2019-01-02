@@ -22,6 +22,8 @@ default:
       browser_name: 'chrome'
       sessions:
         default:
-          goutte: ~
+          goutte:
+            guzzle_parameters:
+                ssl.certificate_authority: false
         symfony2:
           goutte: ~
