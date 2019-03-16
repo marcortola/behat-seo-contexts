@@ -108,7 +108,7 @@ Then the page HTML markup should be valid
 ```
 ##### PerformanceContext
 ```gherkin
-Then /^browser cache should be enabled for (png|jpeg|gif|ico|js|css) resources$/
+Then /^browser cache should be enabled for (.+\..+|external|internal) (png|jpeg|gif|ico|js|css) resources$/
 Then /^Javascript code should load (async|defer)$/
 Then HTML code should be minified
 Then CSS code should be minified

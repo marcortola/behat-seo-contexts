@@ -28,10 +28,8 @@
   "require-dev": {
     "behat/mink-goutte-driver": "^1.0",
     "behat/mink-browserkit-driver": "^1.0",
-    "behat/symfony2-extension": "^2.0"
-  },
-  "suggest": {
-    "symplify/easy-coding-standard": "Allows code style test using composer test-cs console command"
+    "behat/symfony2-extension": "^2.0",
+    "symplify/easy-coding-standard": "^5.4"
   },
   "autoload": {
     "psr-4": {
@@ -46,8 +44,9 @@
     }
   ],
   "scripts": {
-    "serve": "php -S localhost:8080 -t tests/fixtures/web",
+    "serve": "php -S localhost:8080 -t tests/fixtures/web & php -S localhost:8081 -t tests/fixtures/web",
     "test-cs": "vendor/bin/ecs check src",
+    "fix-cs": "vendor/bin/ecs check src --fix",
     "test": "vendor/bin/behat"
   },
   "config": {

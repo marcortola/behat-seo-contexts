@@ -43,7 +43,7 @@ class PerformanceContext extends BaseContext
     /**
      * @return NodeElement[]
      */
-    private function getPageResources(string $resourceType, bool $selfHosted = true): array
+    private function getPageResources(string $resourceType, bool $selfHosted = true, string $host = null): array
     {
         if (!$xpath = $this->getResourceXpath($resourceType)) {
             return [];
@@ -55,6 +55,18 @@ class PerformanceContext extends BaseContext
                 sprintf('[(starts-with(@$1,"%s") or starts-with(@$1,"/")) and contains(@$1,', $this->webUrl),
                 $xpath
             );
+        } elseif ('external' === $host) {
+            $xpath = preg_replace(
+                '/\[contains\(@(.*),/',
+                '[not(starts-with(@$1,"' . $this->webUrl . '") or starts-with(@$1,"/")) and contains(@$1,',
+                $xpath
+            );
+        } elseif (null !== $host) {
+            $xpath = preg_replace(
+                '/\[contains\(@(.*),/',
+                '[(starts-with(@$1,"' . $host . '") or starts-with(@$1,"/")) and contains(@$1,',
+                $xpath
+            );
         }
 
         return $this->getSession()->getPage()->findAll('xpath', $xpath);
@@ -62,10 +74,10 @@ class PerformanceContext extends BaseContext
 
     private function getResourceXpath(string $resourceType): string
     {
-        if (in_array($resourceType, [self::RES_EXT['JPEG'], self::RES_EXT['PNG'], self::RES_EXT['GIF']])) {
+        if (in_array($resourceType, [self::RES_EXT['JPEG'], self::RES_EXT['PNG'], self::RES_EXT['GIF']], true)) {
             return sprintf('//img[contains(@src,".%s")]', $resourceType);
         }
-        if (in_array($resourceType, [self::RES_EXT['ICO'], self::RES_EXT['CSS']])) {
+        if (in_array($resourceType, [self::RES_EXT['ICO'], self::RES_EXT['CSS']], true)) {
             return sprintf('//link[contains(@href,".%s")]', $resourceType);
         }
         if (self::RES_EXT['JAVASCRIPT'] === $resourceType) {
@@ -82,6 +94,7 @@ class PerformanceContext extends BaseContext
     }
 
     /**
+     * @return string
      * @throws \Exception
      */
     private function getResourceUrl(NodeElement $element, string $resourceType): string
@@ -93,11 +106,11 @@ class PerformanceContext extends BaseContext
             self::RES_EXT['JPEG'],
             self::RES_EXT['GIF'],
             self::RES_EXT['JAVASCRIPT']
-        ])) {
+        ], true)) {
             return $element->getAttribute('src');
         }
 
-        if (in_array($resourceType, [self::RES_EXT['CSS'], self::RES_EXT['ICO']])) {
+        if (in_array($resourceType, [self::RES_EXT['CSS'], self::RES_EXT['ICO']], true)) {
             return $element->getAttribute('href');
         }
 
@@ -108,7 +121,7 @@ class PerformanceContext extends BaseContext
 
     private function assertResourceTypeIsValid(string $resourceType)
     {
-        if (!in_array($resourceType, self::RES_EXT)) {
+        if (!in_array($resourceType, self::RES_EXT, true)) {
             throw new \InvalidArgumentException(
                 sprintf(
                     '%s resource type is not valid. Allowed types are: %s',
@@ -134,8 +147,9 @@ class PerformanceContext extends BaseContext
 
     private function assertContentIsMinified(string $content, string $contentMinified)
     {
-        Assert::assertTrue(
-            $content == $contentMinified,
+        Assert::assertSame(
+            $content,
+            $contentMinified,
             'Code is not minified.'
         );
     }
@@ -234,9 +248,8 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @throws \Exception
      * @throws UnsupportedDriverActionException
-     *
+     * @throws \Exception
      * @Then /^(CSS|Javascript) code should be minified$/
      */
     public function cssOrJavascriptFilesShouldBeMinified(string $resourceType)
@@ -271,50 +284,49 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @Then /^browser cache should not be enabled for (png|jpeg|gif|ico|js|css) resources$/
+     * @Then /^browser cache should not be enabled for (.+|external|internal) (png|jpeg|gif|ico|js|css) resources$/
      */
-    public function browserCacheMustNotBeEnabledForCssResources(string $resourceType)
+    public function browserCacheMustNotBeEnabledForResources(string $host, string $resourceType)
     {
         $this->assertInverse(
-            function () use ($resourceType) {
-                $this->browserCacheMustBeEnabledForResources($resourceType);
+            function () use ($host, $resourceType) {
+                $this->browserCacheMustBeEnabledForResources($host, $resourceType);
             },
             sprintf('Browser cache is enabled for %s resources.', $resourceType)
         );
     }
 
     /**
+     * @throws UnsupportedDriverActionException
      * @throws \Exception
-     *
-     * @Then /^browser cache should be enabled for (png|jpeg|gif|ico|js|css) resources$/
+     * @Then /^browser cache should be enabled for (.+|external|internal) (png|jpeg|gif|ico|js|css) resources$/
      */
-    public function browserCacheMustBeEnabledForResources(string $resourceType)
+    public function browserCacheMustBeEnabledForResources(string $host, string $resourceType)
     {
         $this->doesNotSupportDriver(KernelDriver::class);
 
-        $element = $this->getPageResources($resourceType);
-        $element = 0 < count($element) ? current($element) : null;
+        switch ($host) {
+            case 'internal':
+                $elements = $this->getPageResources($resourceType, true);
+                break;
+            default:
+                $elements = $this->getPageResources($resourceType, false, $host);
+                break;
+        }
 
-        $this->getSession()->visit($this->getResourceUrl($element, $resourceType));
-
-        Assert::assertTrue(
-            isset($this->getSession()->getResponseHeaders()['Cache-Control']),
+        Assert::assertNotEmpty(
+            $elements,
             sprintf(
-                'Browser cache is not enabled for %s resources. Cache-Control HTTP header was not received.',
-                $resourceType
+                'The are not %s resources in %s.',
+                $host,
+                $this->getCurrentUrl()
             )
         );
 
-        Assert::assertNotContains(
-            '-no',
-            $this->getSession()->getResponseHeaders()['Cache-Control'],
-            sprintf(
-                'Browser cache is not enabled for %s resources. Cache-Control HTTP header is "no-cache".',
-                $resourceType
-            )
+        $this->checkResourceCache(
+            $elements[array_rand($elements)],
+            $resourceType
         );
-
-        $this->getSession()->back();
     }
 
     /**
@@ -325,6 +337,42 @@ class PerformanceContext extends BaseContext
         $this->assertInverse(
             [$this, 'javascriptFilesShouldLoadAsync'],
             'All JS files load async.'
+        );
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function checkResourceCache(NodeElement $element, string $resourceType)
+    {
+        $this->getSession()->visit($this->getResourceUrl($element, $resourceType));
+        $headers = array_change_key_case($this->getSession()->getResponseHeaders());
+        $this->getSession()->back();
+
+        Assert::assertTrue(
+            array_key_exists('cache-control', $headers),
+            sprintf(
+                'Browser cache is not enabled for %s resources. Cache-Control HTTP header was not received.',
+                $resourceType
+            )
+        );
+
+        Assert::assertNotContains(
+            'no-cache',
+            $headers['cache-control'],
+            sprintf(
+                'Browser cache is not enabled for %s resources. Cache-Control HTTP header is "no-cache".',
+                $resourceType
+            )
+        );
+
+        Assert::assertNotContains(
+            'max-age=0',
+            $headers['cache-control'],
+            sprintf(
+                'Browser cache is not enabled for %s resources. Cache-Control HTTP header is "max-age=0".',
+                $resourceType
+            )
         );
     }
 }
