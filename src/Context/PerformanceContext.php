@@ -41,11 +41,6 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @param string      $resourceType
-     * @param bool        $selfHosted
-     *
-     * @param string|null $host
-     *
      * @return NodeElement[]
      */
     private function getPageResources(string $resourceType, bool $selfHosted = true, string $host = null): array
@@ -60,7 +55,7 @@ class PerformanceContext extends BaseContext
                 sprintf('[(starts-with(@$1,"%s") or starts-with(@$1,"/")) and contains(@$1,', $this->webUrl),
                 $xpath
             );
-        } elseif ($host === 'external') {
+        } elseif ('external' === $host) {
             $xpath = preg_replace(
                 '/\[contains\(@(.*),/',
                 '[not(starts-with(@$1,"' . $this->webUrl . '") or starts-with(@$1,"/")) and contains(@$1,',
@@ -99,9 +94,6 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @param NodeElement $element
-     * @param string      $resourceType
-     *
      * @return string
      * @throws \Exception
      */
@@ -244,7 +236,6 @@ class PerformanceContext extends BaseContext
 
     /**
      * @Then /^(CSS|Javascript) code should not be minified$/
-     * @param string $resourceType
      */
     public function cssOrJavascriptFilesShouldNotBeMinified(string $resourceType)
     {
@@ -257,8 +248,6 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @param string $resourceType
-     *
      * @throws UnsupportedDriverActionException
      * @throws \Exception
      * @Then /^(CSS|Javascript) code should be minified$/
@@ -296,8 +285,6 @@ class PerformanceContext extends BaseContext
 
     /**
      * @Then /^browser cache should not be enabled for (.+|external|internal) (png|jpeg|gif|ico|js|css) resources$/
-     * @param string $host
-     * @param string $resourceType
      */
     public function browserCacheMustNotBeEnabledForResources(string $host, string $resourceType)
     {
@@ -310,9 +297,6 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @param string $host
-     * @param string $resourceType
-     *
      * @throws UnsupportedDriverActionException
      * @throws \Exception
      * @Then /^browser cache should be enabled for (.+|external|internal) (png|jpeg|gif|ico|js|css) resources$/
@@ -320,19 +304,29 @@ class PerformanceContext extends BaseContext
     public function browserCacheMustBeEnabledForResources(string $host, string $resourceType)
     {
         $this->doesNotSupportDriver(KernelDriver::class);
+
         switch ($host) {
-        case 'internal':
-            $elements = $this->getPageResources($resourceType, true);
+            case 'internal':
+                $elements = $this->getPageResources($resourceType, true);
                 break;
-        case 'external':
-            $elements = $this->getPageResources($resourceType, false, $host);
-                break;
-        default:
-            $elements = $this->getPageResources($resourceType, false, $host);
+            default:
+                $elements = $this->getPageResources($resourceType, false, $host);
                 break;
         }
-        $this->checkResourceCache($elements[array_rand($elements)], $resourceType);
-        $this->getSession()->back();
+
+        Assert::assertNotEmpty(
+            $elements,
+            sprintf(
+                'The are not %s resources in %s.',
+                $host,
+                $this->getCurrentUrl()
+            )
+        );
+
+        $this->checkResourceCache(
+            $elements[array_rand($elements)],
+            $resourceType
+        );
     }
 
     /**
@@ -347,15 +341,13 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @param        $element
-     * @param string $resourceType
-     *
      * @throws \Exception
      */
-    private function checkResourceCache($element, $resourceType)
+    private function checkResourceCache(NodeElement $element, string $resourceType)
     {
         $this->getSession()->visit($this->getResourceUrl($element, $resourceType));
         $headers = array_change_key_case($this->getSession()->getResponseHeaders());
+        $this->getSession()->back();
 
         Assert::assertTrue(
             array_key_exists('cache-control', $headers),
@@ -366,10 +358,19 @@ class PerformanceContext extends BaseContext
         );
 
         Assert::assertNotContains(
-            '-no',
+            'no-cache',
             $headers['cache-control'],
             sprintf(
                 'Browser cache is not enabled for %s resources. Cache-Control HTTP header is "no-cache".',
+                $resourceType
+            )
+        );
+
+        Assert::assertNotContains(
+            'max-age=0',
+            $headers['cache-control'],
+            sprintf(
+                'Browser cache is not enabled for %s resources. Cache-Control HTTP header is "max-age=0".',
                 $resourceType
             )
         );

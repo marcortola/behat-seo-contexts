@@ -36,14 +36,32 @@ Feature: Performance feature
     When I am on "/performance/cache/disabled-browser-cache.html"
     Then browser cache should not be enabled for internal css resources
 
+    When I am on "/performance/cache/disabled-browser-cache-no-cache.html"
+    Then browser cache should not be enabled for internal css resources
+
+    When I am on "/performance/cache/disabled-browser-cache-max-age-0.html"
+    Then browser cache should not be enabled for internal css resources
+
     When I am on "/performance/cache/enabled-external-browser-cache.html"
     Then browser cache should be enabled for external css resources
+
+    When I am on "/performance/cache/disabled-external-browser-cache.html"
+    Then browser cache should not be enabled for external css resources
+
+    When I am on "/performance/cache/disabled-external-browser-cache-max-age-0.html"
+    Then browser cache should not be enabled for external css resources
+
+    When I am on "/performance/cache/disabled-external-browser-cache-no-cache.html"
+    Then browser cache should not be enabled for external css resources
 
     When I am on "/performance/cache/enabled-external-browser-cache.html"
     Then browser cache should be enabled for http://localhost:8081 css resources
 
     When I am on "/performance/cache/disabled-external-browser-cache.html"
     Then browser cache should not be enabled for http://localhost:8081 css resources
+
+    When I am on "/performance/cache/disabled-external-browser-cache.html"
+    Then browser cache should not be enabled for http://localhost:8080 css resources
 
   Scenario: Testing JS loading async or defer
     Given I am on "/performance/js/async.html"
