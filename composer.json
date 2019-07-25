@@ -22,7 +22,7 @@
     "matriphe/iso-639": "^1.2",
     "vipnytt/robotstxtparser": "^2.0",
     "rexxars/html-validator": "^2.1",
-    "phpunit/phpunit": "^6.0||^7.0",
+    "phpunit/phpunit": "^6.0||^7.0|^8.0",
     "ext-dom": "*"
   },
   "require-dev": {
