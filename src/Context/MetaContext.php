@@ -50,7 +50,7 @@ class MetaContext extends BaseContext
     }
     
     /**
-     * @throws \Exception     
+     * @throws \Exception
      */
     private function assertCanonicalElementExists()
     {
@@ -146,7 +146,7 @@ class MetaContext extends BaseContext
     }
 
     /**
-     * @throws \Exception     
+     * @throws \Exception
      */
     private function assertTitleElementExists()
     {
@@ -202,7 +202,7 @@ class MetaContext extends BaseContext
     }
 
     /**
-     * @throws \Exception     
+     * @throws \Exception
      */
     private function assertPageMetaDescriptionElementExists()
     {
