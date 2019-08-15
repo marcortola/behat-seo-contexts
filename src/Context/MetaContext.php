@@ -14,15 +14,27 @@ class MetaContext extends BaseContext
      */
     public function thePageCanonicalShouldBe(string $expectedCanonicalUrl)
     {
-        Assert::assertNotNull(
-            $this->getCanonicalElement(),
-            'Canonical element does not exist'
-        );
+        $this->assertCanonicalElementExists();
 
         Assert::assertEquals(
             $this->toAbsoluteUrl($expectedCanonicalUrl),
             $this->getCanonicalElement()->getAttribute('href'),
             sprintf('Canonical url should be "%s"', $this->toAbsoluteUrl($expectedCanonicalUrl))
+        );
+    }
+    
+    /**
+     * @throws \Exception
+     *
+     * @Then the page canonical should not be empty
+     */
+    public function thePageCanonicalShouldNotBeEmpty()
+    {
+        $this->assertCanonicalElementExists();
+
+        Assert::assertNotEmpty(
+            trim($this->getCanonicalElement()->getAttribute('href')),
+            'Canonical url is empty'
         );
     }
 
@@ -32,8 +44,19 @@ class MetaContext extends BaseContext
     private function getCanonicalElement()
     {
         return $this->getSession()->getPage()->find(
-            'xpath',
-            '//head/link[@rel="canonical"]'
+                'xpath',
+                '//head/link[@rel="canonical"]'
+        );
+    }
+    
+    /**
+     * @throws \Exception
+     */
+    private function assertCanonicalElementExists()
+    {
+        Assert::assertNotNull(
+            $this->getCanonicalElement(),
+            'Canonical element does not exist'
         );
     }
 
@@ -64,8 +87,8 @@ class MetaContext extends BaseContext
     private function getMetaRobotsElement()
     {
         return $this->getSession()->getPage()->find(
-            'xpath',
-            '//head/meta[@name="robots"]'
+                'xpath',
+                '//head/meta[@name="robots"]'
         );
     }
 
@@ -87,10 +110,7 @@ class MetaContext extends BaseContext
      */
     public function thePageTitleShouldBe(string $expectedTitle)
     {
-        Assert::assertNotNull(
-            $this->getTitleElement(),
-            'Title tag does not exist'
-        );
+        $this->assertTitleElementExists();
 
         Assert::assertEquals(
             $expectedTitle,
@@ -99,6 +119,21 @@ class MetaContext extends BaseContext
                 'Title tag is not "%s"',
                 $expectedTitle
             )
+        );
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @Then the page title should not be empty
+     */
+    public function thePageTitleShouldNotBeEmpty()
+    {
+        $this->assertTitleElementExists();
+
+        Assert::assertNotEmpty(
+            trim($this->getTitleElement()->getText()),
+            'Title tag is empty'
         );
     }
 
@@ -112,15 +147,23 @@ class MetaContext extends BaseContext
 
     /**
      * @throws \Exception
+     */
+    private function assertTitleElementExists()
+    {
+        Assert::assertNotNull(
+            $this->getTitleElement(),
+            'Title tag does not exist'
+        );
+    }
+
+    /**
+     * @throws \Exception
      *
      * @Then the page meta description should be :expectedMetaDescription
      */
     public function thePageMetaDescriptionShouldBe(string $expectedMetaDescription)
     {
-        Assert::assertNotNull(
-            $this->getMetaDescriptionElement(),
-            'Meta description does not exist'
-        );
+        $this->assertPageMetaDescriptionElementExists();
 
         Assert::assertEquals(
             $expectedMetaDescription,
@@ -133,13 +176,39 @@ class MetaContext extends BaseContext
     }
 
     /**
+     * @throws \Exception
+     *
+     * @Then the page meta description should not be empty
+     */
+    public function thePageMetaDescriptionNotBeEmpty()
+    {
+        $this->assertPageMetaDescriptionElementExists();
+
+        Assert::assertNotEmpty(
+            trim($this->getMetaDescriptionElement()->getAttribute('content')),
+            'Meta description is empty'
+        );
+    }
+
+    /**
      * @return NodeElement|null
      */
     private function getMetaDescriptionElement()
     {
         return $this->getSession()->getPage()->find(
-            'xpath',
-            '//head/meta[@name="description"]'
+                'xpath',
+                '//head/meta[@name="description"]'
+        );
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function assertPageMetaDescriptionElementExists()
+    {
+        Assert::assertNotNull(
+            $this->getMetaDescriptionElement(),
+            'Meta description does not exist'
         );
     }
 
