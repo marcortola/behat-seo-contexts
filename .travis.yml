@@ -8,6 +8,13 @@ php:
   - 7.0
   - 7.1
   - 7.2
+  - 7.3
+  
+env:
+  matrix:
+    - COMPOSER_PREFER="--prefer-lowest --prefer-stable"        
+    - COMPOSER_PREFER="--prefer-stable"
+    - COMPOSER_PREFER=""
 
 before_script:
   - composer serve &> /dev/null &
