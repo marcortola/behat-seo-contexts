@@ -9,11 +9,17 @@ php:
   - 7.1
   - 7.2
 
+matrix:
+  include:
+    - php: 7.0
+      env: DEPENDENCIES='lowest'
+
 before_script:
   - composer serve &> /dev/null &
   - cp behat.yml.dist behat.yml
   - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer install --no-interaction
-  - composer update --prefer-dist --no-progress
+  - if [ "$DEPENDENCIES" == "lowest" ]; then composer update --prefer-lowest --prefer-stable; fi;
+  - if [ "$DEPENDENCIES" != "lowest" ]; then composer update --prefer-stable; fi;
 
 script:
   - ./vendor/bin/behat --format=progress --no-interaction
