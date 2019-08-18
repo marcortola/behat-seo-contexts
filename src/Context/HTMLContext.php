@@ -21,25 +21,32 @@ class HTMLContext extends BaseContext
      */
     public function thePageHtmlMarkupShouldBeValid(): void
     {
+        $validated        = false;
+        $validationErrors = [];
+
         foreach (self::VALIDATION_SERVICES as $validatorService) {
             try {
-                $validator       = new Validator($validatorService);
-                $validatorResult = $validator->validateDocument($this->getSession()->getPage()->getContent());
+                $validator        = new Validator($validatorService);
+                $validatorResult  = $validator->validateDocument($this->getSession()->getPage()->getContent());
+                $validated        = true;
+                $validationErrors = $validatorResult->getErrors();
                 break;
             } catch (ServerException | UnknownParserException $e) {
                 // @ignoreException
             }
         }
 
-        if (!isset($validatorResult)) {
+        if (!$validated) {
             throw new PendingException('HTML validation services are not working');
-        } elseif (isset($validatorResult->getErrors()[0])) {
+        }
+
+        if (isset($validationErrors[0])) {
             throw new InvalidArgumentException(
                 sprintf(
                     'HTML markup validation error: Line %s: "%s" - %s in %s',
-                    $validatorResult->getErrors()[0]->getFirstLine(),
-                    $validatorResult->getErrors()[0]->getExtract(),
-                    $validatorResult->getErrors()[0]->getText(),
+                    $validationErrors[0]->getFirstLine(),
+                    $validationErrors[0]->getExtract(),
+                    $validationErrors[0]->getText(),
                     $this->getCurrentUrl()
                 )
             );

@@ -85,13 +85,15 @@ class LocalizationContext extends BaseContext
 
     private function assertHreflangCoherentXDefault(): void
     {
+        $xDefault = '';
+
         foreach ($this->getHreflangElements() as $hreflangMetaTag) {
             if ('x-default' === $hreflangMetaTag->getAttribute('hreflang')) {
                 $xDefault = $hreflangMetaTag->getAttribute('href');
             }
         }
 
-        if (!isset($xDefault)) {
+        if ('' === $xDefault) {
             return;
         }
 
