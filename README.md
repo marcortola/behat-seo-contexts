@@ -3,7 +3,6 @@
 [![Latest Version](https://img.shields.io/github/release/mortola/behat-seo-contexts.svg?style=flat-square)](https://github.com/mortola/behat-seo-contexts/releases)
 [![Build Status](https://img.shields.io/travis/mortola/behat-seo-contexts.svg?style=flat-square)](https://travis-ci.org/mortola/behat-seo-contexts)
 [![Quality Score](https://img.shields.io/scrutinizer/g/mortola/behat-seo-contexts.svg?style=flat-square)](https://scrutinizer-ci.com/g/mortola/behat-seo-contexts)
-[![StyleCI](https://github.styleci.io/repos/156007212/shield?branch=master)](https://github.styleci.io/repos/156007212)
 [![Total Downloads](https://img.shields.io/packagist/dt/mortola/behat-seo-contexts.svg?style=flat-square)](https://packagist.org/packages/mortola/behat-seo-contexts)
 
 **Behat extension for testing some On-Page SEO factors.**
@@ -26,7 +25,7 @@ Installation
 
 Basic requirements:
 
-* Php 7+
+* PHP 7.1+
 * Behat 3+
 * Mink + Mink extension
 * PHPUnit 6+

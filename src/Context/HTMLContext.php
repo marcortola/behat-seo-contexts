@@ -1,9 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Behat\Tester\Exception\PendingException;
-use HtmlValidator\Response;
+use Exception;
+use HtmlValidator\Exception\ServerException;
 use HtmlValidator\Validator;
 use PHPUnit\Framework\ExpectationFailedException;
 
@@ -16,19 +17,19 @@ class HTMLContext extends BaseContext
     ];
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Then the page HTML markup should be valid
      */
-    public function thePageHtmlMarkupShouldBeValid()
+    public function thePageHtmlMarkupShouldBeValid(): void
     {
         foreach (self::VALIDATION_SERVICES as $validatorService) {
             try {
-                $validator = new Validator($validatorService);
-                /** @var Response $validatorResult */
+                $validator       = new Validator($validatorService);
                 $validatorResult = $validator->validateDocument($this->getSession()->getPage()->getContent());
                 break;
-            } catch (\Exception $e) {
+            } catch (ServerException $e) {
+                // @ignoreException
             }
         }
 
@@ -48,11 +49,11 @@ class HTMLContext extends BaseContext
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Then the page HTML markup should not be valid
      */
-    public function thePageHtmlMarkupShouldNotBeValid()
+    public function thePageHtmlMarkupShouldNotBeValid(): void
     {
         $this->assertInverse(
             [$this, 'thePageHtmlMarkupShouldBeValid'],

@@ -1,34 +1,36 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Symfony2Extension\Driver\KernelDriver;
+use Exception;
+use InvalidArgumentException;
 use PHPUnit\Framework\Assert;
 
 class PerformanceContext extends BaseContext
 {
     const RES_EXT = [
-        'PNG' => 'png',
-        'HTML' => 'html',
-        'JPEG' => 'jpeg',
-        'GIF' => 'gif',
-        'ICO' => 'ico',
-        'JAVASCRIPT' => 'js',
-        'CSS' => 'css',
+        'PNG'             => 'png',
+        'HTML'            => 'html',
+        'JPEG'            => 'jpeg',
+        'GIF'             => 'gif',
+        'ICO'             => 'ico',
+        'JAVASCRIPT'      => 'js',
+        'CSS'             => 'css',
         'CSS_INLINE_HEAD' => 'css-inline-head',
-        'CSS_LINK_HEAD' => 'css-link-head',
+        'CSS_LINK_HEAD'   => 'css-link-head',
     ];
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Then /^Javascript code should load (async|defer)$/
      */
-    public function javascriptFilesShouldLoadAsync()
+    public function javascriptFilesShouldLoadAsync(): void
     {
-        foreach ($this->getPageResources(self::RES_EXT['JAVASCRIPT']) as $scriptElement) {
+        foreach ($this->getSelfHostedPageResources(self::RES_EXT['JAVASCRIPT']) as $scriptElement) {
             Assert::assertTrue(
                 $scriptElement->hasAttribute('async') || $scriptElement->hasAttribute('defer'),
                 sprintf(
@@ -43,33 +45,53 @@ class PerformanceContext extends BaseContext
     /**
      * @return NodeElement[]
      */
-    private function getPageResources(string $resourceType, bool $selfHosted = true, string $host = null): array
+    private function getPageResources(string $resourceType, string $host = null): array
     {
         if (!$xpath = $this->getResourceXpath($resourceType)) {
             return [];
         }
 
-        if ($selfHosted) {
+        if ('external' === $host) {
             $xpath = preg_replace(
                 '/\[contains\(@(.*),/',
-                sprintf('[(starts-with(@$1,"%s") or starts-with(@$1,"/")) and contains(@$1,', $this->webUrl),
-                $xpath
-            );
-        } elseif ('external' === $host) {
-            $xpath = preg_replace(
-                '/\[contains\(@(.*),/',
-                '[not(starts-with(@$1,"' . $this->webUrl . '") or starts-with(@$1,"/")) and contains(@$1,',
+                '[not(starts-with(@$1,"'.$this->webUrl.'") or starts-with(@$1,"/")) and contains(@$1,',
                 $xpath
             );
         } elseif (null !== $host) {
             $xpath = preg_replace(
                 '/\[contains\(@(.*),/',
-                '[(starts-with(@$1,"' . $host . '") or starts-with(@$1,"/")) and contains(@$1,',
+                '[(starts-with(@$1,"'.$host.'") or starts-with(@$1,"/")) and contains(@$1,',
                 $xpath
             );
         }
 
-        return $this->getSession()->getPage()->findAll('xpath', $xpath);
+        if ($xpath) {
+            return $this->getSession()->getPage()->findAll('xpath', $xpath);
+        }
+
+        return [];
+    }
+
+    /**
+     * @return NodeElement[]
+     */
+    private function getSelfHostedPageResources(string $resourceType): array
+    {
+        if (!$xpath = $this->getResourceXpath($resourceType)) {
+            return [];
+        }
+
+        $xpath = preg_replace(
+            '/\[contains\(@(.*),/',
+            sprintf('[(starts-with(@$1,"%s") or starts-with(@$1,"/")) and contains(@$1,', $this->webUrl),
+            $xpath
+        );
+
+        if ($xpath) {
+            return $this->getSession()->getPage()->findAll('xpath', $xpath);
+        }
+
+        return [];
     }
 
     private function getResourceXpath(string $resourceType): string
@@ -94,19 +116,17 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @return string
-     * @throws \Exception
+     * @throws Exception
      */
-    private function getResourceUrl(NodeElement $element, string $resourceType): string
+    private function getResourceUrl(NodeElement $element, string $resourceType): ?string
     {
         $this->assertResourceTypeIsValid($resourceType);
 
-        if (in_array($resourceType, [
-            self::RES_EXT['PNG'],
-            self::RES_EXT['JPEG'],
-            self::RES_EXT['GIF'],
-            self::RES_EXT['JAVASCRIPT']
-        ], true)) {
+        if (in_array(
+            $resourceType,
+            [self::RES_EXT['PNG'], self::RES_EXT['JPEG'], self::RES_EXT['GIF'], self::RES_EXT['JAVASCRIPT']],
+            true
+        )) {
             return $element->getAttribute('src');
         }
 
@@ -114,15 +134,15 @@ class PerformanceContext extends BaseContext
             return $element->getAttribute('href');
         }
 
-        throw new \Exception(
+        throw new InvalidArgumentException(
             sprintf('%s resource type url is not implemented', $resourceType)
         );
     }
 
-    private function assertResourceTypeIsValid(string $resourceType)
+    private function assertResourceTypeIsValid(string $resourceType): void
     {
         if (!in_array($resourceType, self::RES_EXT, true)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     '%s resource type is not valid. Allowed types are: %s',
                     $resourceType,
@@ -133,11 +153,11 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Then HTML code should be minified
      */
-    public function htmlShouldBeMinified()
+    public function htmlShouldBeMinified(): void
     {
         $this->assertContentIsMinified(
             $this->getSession()->getPage()->getContent(),
@@ -145,7 +165,7 @@ class PerformanceContext extends BaseContext
         );
     }
 
-    private function assertContentIsMinified(string $content, string $contentMinified)
+    private function assertContentIsMinified(string $content, string $contentMinified): void
     {
         Assert::assertSame(
             $content,
@@ -154,52 +174,20 @@ class PerformanceContext extends BaseContext
         );
     }
 
-    private function minimizeCss(string $css): string
-    {
-        return preg_replace(
-            [
-                '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')|\/\*(?!\!)(?>.*?\*\/)|^\s*|\s*$#s',
-                '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/))|\s*+;\s*+(})\s*+|\s*+([*$~^|
-                ]?+=|[{};,>~+]|\s*+-(?![0-9\.])|!important\b)\s*+|([[(:])\s++|\s++([])])|\s++(:)\s*+(?!(?>[^{}"\']++|
-                "(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')*+{)|^\s++|\s++\z|(\s)\s+#si',
-            ],
-            ['$1', '$1$2$3$4$5$6$7'],
-            $css
-        );
-    }
-
-    private function minimizeJs(string $js): string
-    {
-        return preg_replace(
-            [
-                '#\s*("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')\s*|\s*\/\*(?!\!|@cc_on)(?>[\s\S]*?\*\/)\s*|
-                \s*(?<![\:\=])\/\/.*(?=[\n\r]|$)|^\s*|\s*$#',
-                '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/)|\/(?!\/)[^\n\r]*?\/(?=[\s.,;]|
-                [gimuy]|$))|\s*([!%&*\(\)\-=+\[\]\{\}|;:,.<>?\/])\s*#s',
-            ],
-            ['$1', '$1$2'],
-            $js
-        );
-    }
-
     private function minimizeHtml(string $html): string
     {
-        return preg_replace(
-            '/(?<=>)\s+|\s+(?=<)/',
-            '',
-            $html
-        );
+        return preg_replace('/(?<=>)\s+|\s+(?=<)/', '', $html) ?? $html;
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Then CSS code should load deferred
      */
-    public function cssFilesShouldLoadDeferred()
+    public function cssFilesShouldLoadDeferred(): void
     {
         Assert::assertEmpty(
-            $this->getPageResources(self::RES_EXT['CSS_LINK_HEAD'], true),
+            $this->getSelfHostedPageResources(self::RES_EXT['CSS_LINK_HEAD']),
             sprintf(
                 'Some self hosted css files are loading in head in %s',
                 $this->getCurrentUrl()
@@ -208,14 +196,14 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Then critical CSS code should exist in head
      */
-    public function criticalCssShouldExistInHead()
+    public function criticalCssShouldExistInHead(): void
     {
         Assert::assertNotEmpty(
-            $this->getPageResources(self::RES_EXT['CSS_INLINE_HEAD']),
+            $this->getSelfHostedPageResources(self::RES_EXT['CSS_INLINE_HEAD']),
             sprintf(
                 'No inline css is loading in head in %s',
                 $this->getCurrentUrl()
@@ -226,7 +214,7 @@ class PerformanceContext extends BaseContext
     /**
      * @Then HTML code should not be minified
      */
-    public function htmlShouldNotBeMinified()
+    public function htmlShouldNotBeMinified(): void
     {
         $this->assertInverse(
             [$this, 'htmlShouldBeMinified'],
@@ -237,7 +225,7 @@ class PerformanceContext extends BaseContext
     /**
      * @Then /^(CSS|Javascript) code should not be minified$/
      */
-    public function cssOrJavascriptFilesShouldNotBeMinified(string $resourceType)
+    public function cssOrJavascriptFilesShouldNotBeMinified(string $resourceType): void
     {
         $this->assertInverse(
             function () use ($resourceType) {
@@ -249,17 +237,19 @@ class PerformanceContext extends BaseContext
 
     /**
      * @throws UnsupportedDriverActionException
-     * @throws \Exception
+     * @throws Exception
      * @Then /^(CSS|Javascript) code should be minified$/
      */
-    public function cssOrJavascriptFilesShouldBeMinified(string $resourceType)
+    public function cssOrJavascriptFilesShouldBeMinified(string $resourceType): void
     {
         $this->doesNotSupportDriver(KernelDriver::class);
 
         $resourceType = 'Javascript' === $resourceType ? 'js' : 'css';
 
-        foreach ($this->getPageResources($resourceType) as $element) {
-            $this->getSession()->visit($this->getResourceUrl($element, $resourceType));
+        foreach ($this->getSelfHostedPageResources($resourceType) as $element) {
+            if ($url = $this->getResourceUrl($element, $resourceType)) {
+                $this->getSession()->visit($url);
+            }
 
             $this->assertContentIsMinified(
                 $this->getSession()->getPage()->getContent(),
@@ -272,10 +262,38 @@ class PerformanceContext extends BaseContext
         }
     }
 
+    private function minimizeJs(string $javascript): string
+    {
+        return preg_replace(
+            [
+                       '#\s*("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')\s*|\s*\/\*(?!\!|@cc_on)(?>[\s\S]*?\*\/)\s*|
+                \s*(?<![\:\=])\/\/.*(?=[\n\r]|$)|^\s*|\s*$#',
+                       '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/)|\/(?!\/)[^\n\r]*?\/(?=[\s.,;]|
+                [gimuy]|$))|\s*([!%&*\(\)\-=+\[\]\{\}|;:,.<>?\/])\s*#s',
+                   ],
+            ['$1', '$1$2'],
+            $javascript
+        ) ?? $javascript;
+    }
+
+    private function minimizeCss(string $css): string
+    {
+        return preg_replace(
+            [
+                       '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')|\/\*(?!\!)(?>.*?\*\/)|^\s*|\s*$#s',
+                       '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/))|\s*+;\s*+(})\s*+|\s*+([*$~^|
+                ]?+=|[{};,>~+]|\s*+-(?![0-9\.])|!important\b)\s*+|([[(:])\s++|\s++([])])|\s++(:)\s*+(?!(?>[^{}"\']++|
+                "(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')*+{)|^\s++|\s++\z|(\s)\s+#si',
+                   ],
+            ['$1', '$1$2$3$4$5$6$7'],
+            $css
+        ) ?? $css;
+    }
+
     /**
      * @Then critical CSS code should not exist in head
      */
-    public function criticalCssShouldNotExistInHead()
+    public function criticalCssShouldNotExistInHead(): void
     {
         $this->assertInverse(
             [$this, 'criticalCssShouldExistInHead'],
@@ -286,7 +304,7 @@ class PerformanceContext extends BaseContext
     /**
      * @Then /^browser cache should not be enabled for (.+|external|internal) (png|jpeg|gif|ico|js|css) resources$/
      */
-    public function browserCacheMustNotBeEnabledForResources(string $host, string $resourceType)
+    public function browserCacheMustNotBeEnabledForResources(string $host, string $resourceType): void
     {
         $this->assertInverse(
             function () use ($host, $resourceType) {
@@ -298,19 +316,19 @@ class PerformanceContext extends BaseContext
 
     /**
      * @throws UnsupportedDriverActionException
-     * @throws \Exception
+     * @throws Exception
      * @Then /^browser cache should be enabled for (.+|external|internal) (png|jpeg|gif|ico|js|css) resources$/
      */
-    public function browserCacheMustBeEnabledForResources(string $host, string $resourceType)
+    public function browserCacheMustBeEnabledForResources(string $host, string $resourceType): void
     {
         $this->doesNotSupportDriver(KernelDriver::class);
 
         switch ($host) {
             case 'internal':
-                $elements = $this->getPageResources($resourceType, true);
+                $elements = $this->getSelfHostedPageResources($resourceType);
                 break;
             default:
-                $elements = $this->getPageResources($resourceType, false, $host);
+                $elements = $this->getPageResources($resourceType, $host);
                 break;
         }
 
@@ -330,22 +348,14 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @Then /^Javascript code should not load (async|defer)$/
+     * @throws Exception
      */
-    public function jsShouldNotLoadAsyncOr()
+    private function checkResourceCache(NodeElement $element, string $resourceType): void
     {
-        $this->assertInverse(
-            [$this, 'javascriptFilesShouldLoadAsync'],
-            'All JS files load async.'
-        );
-    }
+        if ($url = $this->getResourceUrl($element, $resourceType)) {
+            $this->getSession()->visit($url);
+        }
 
-    /**
-     * @throws \Exception
-     */
-    private function checkResourceCache(NodeElement $element, string $resourceType)
-    {
-        $this->getSession()->visit($this->getResourceUrl($element, $resourceType));
         $headers = array_change_key_case($this->getSession()->getResponseHeaders());
         $this->getSession()->back();
 
@@ -373,6 +383,17 @@ class PerformanceContext extends BaseContext
                 'Browser cache is not enabled for %s resources. Cache-Control HTTP header is "max-age=0".',
                 $resourceType
             )
+        );
+    }
+
+    /**
+     * @Then /^Javascript code should not load (async|defer)$/
+     */
+    public function jsShouldNotLoadAsyncOr(): void
+    {
+        $this->assertInverse(
+            [$this, 'javascriptFilesShouldLoadAsync'],
+            'All JS files load async.'
         );
     }
 }

@@ -1,8 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace MOrtola\BehatSEOContexts\Context;
 
+use Behat\Behat\Context\Environment\InitializedContextEnvironment;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Exception;
 use PHPUnit\Framework\Assert;
 
 class IndexationContext extends BaseContext
@@ -12,7 +14,6 @@ class IndexationContext extends BaseContext
      */
     private $robotsContext;
 
-
     /**
      * @var MetaContext
      */
@@ -21,16 +22,20 @@ class IndexationContext extends BaseContext
     /**
      * @BeforeScenario
      */
-    public function gatherContexts(BeforeScenarioScope $scope)
+    public function gatherContexts(BeforeScenarioScope $scope): void
     {
-        $this->robotsContext = $scope->getEnvironment()->getContext(RobotsContext::class);
-        $this->metaContext   = $scope->getEnvironment()->getContext(MetaContext::class);
+        $env = $scope->getEnvironment();
+
+        if ($env instanceof InitializedContextEnvironment) {
+            $this->robotsContext = $env->getContext(RobotsContext::class);
+            $this->metaContext   = $env->getContext(MetaContext::class);
+        }
     }
 
     /**
      * @Then the page should not be indexable
      */
-    public function thePageShouldNotBeIndexable()
+    public function thePageShouldNotBeIndexable(): void
     {
         $this->assertInverse(
             [$this, 'thePageShouldBeIndexable'],
@@ -39,11 +44,11 @@ class IndexationContext extends BaseContext
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Then the page should be indexable
      */
-    public function thePageShouldBeIndexable()
+    public function thePageShouldBeIndexable(): void
     {
         $this->metaContext->thePageShouldNotBeNoindex();
         $this->robotsContext->iShouldBeAbleToCrawl($this->getCurrentUrl());

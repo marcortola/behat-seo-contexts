@@ -1,13 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
-use Behat\Mink\Session;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Symfony2Extension\Driver\KernelDriver;
+use Exception;
+use InvalidArgumentException;
+use MOrtola\BehatSEOContexts\Exception\TimeoutException;
 use PHPUnit\Framework\ExpectationFailedException;
 
 class BaseContext extends RawMinkContext
@@ -20,7 +22,7 @@ class BaseContext extends RawMinkContext
     /**
      * @BeforeScenario
      */
-    public function setupWebUrl()
+    public function setupWebUrl(): void
     {
         $this->webUrl = $this->getMinkParameter('base_url');
     }
@@ -34,10 +36,7 @@ class BaseContext extends RawMinkContext
         return $nodeElement->getHtml();
     }
 
-    /**
-     * @return string|null
-     */
-    protected function getResponseHeader(string $header)
+    protected function getResponseHeader(string $header): ?string
     {
         if (method_exists($this->getSession(), 'getResponseHeader')) {
             return $this->getSession()->getResponseHeader($header);
@@ -53,15 +52,17 @@ class BaseContext extends RawMinkContext
     /**
      * @throws DriverException
      */
-    protected function visit(string $url)
+    protected function visit(string $url): void
     {
         $driver = $this->getSession()->getDriver();
 
         if ($driver instanceof KernelDriver) {
             $driver->getClient()->request('GET', $url);
-        } else {
-            $driver->visit($url);
+
+            return;
         }
+
+        $driver->visit($url);
     }
 
     protected function getStatusCode(): int
@@ -70,12 +71,12 @@ class BaseContext extends RawMinkContext
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     protected function spin(callable $closure, int $seconds = 5): bool
     {
-        $i = 1;
-        while ($i++ <= $seconds * 4) {
+        $iteration = 1;
+        while ($iteration++ <= $seconds * 4) {
             if ($closure($this)) {
                 return true;
             }
@@ -83,7 +84,7 @@ class BaseContext extends RawMinkContext
         }
         $backtrace = debug_backtrace();
 
-        throw new \Exception(
+        throw new TimeoutException(
             sprintf(
                 "Timeout thrown by %s::%s()\n%s, line %s",
                 $backtrace[0]['class'],
@@ -101,7 +102,7 @@ class BaseContext extends RawMinkContext
         }
 
         if (false === filter_var($url, FILTER_VALIDATE_URL)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf('%s is not a valid URL', $url)
             );
         }
@@ -109,24 +110,15 @@ class BaseContext extends RawMinkContext
         return $url;
     }
 
-    protected function getCurrentUrl(bool $relative = false): string
+    protected function getCurrentUrl(): string
     {
-        if ($relative) {
-            $this->toRelativeUrl($this->getSession()->getCurrentUrl());
-        }
-
         return $this->getSession()->getCurrentUrl();
-    }
-
-    protected function toRelativeUrl(string $url): string
-    {
-        return parse_url($url, PHP_URL_PATH);
     }
 
     /**
      * @throws UnsupportedDriverActionException
      */
-    protected function supportsDriver(string $driverClass)
+    protected function supportsDriver(string $driverClass): void
     {
         if (!is_a($this->getSession()->getDriver(), $driverClass)) {
             throw new UnsupportedDriverActionException(
@@ -139,7 +131,7 @@ class BaseContext extends RawMinkContext
     /**
      * @throws UnsupportedDriverActionException
      */
-    protected function doesNotSupportDriver(string $driverClass)
+    protected function doesNotSupportDriver(string $driverClass): void
     {
         if (is_a($this->getSession()->getDriver(), $driverClass)) {
             throw new UnsupportedDriverActionException(
@@ -149,7 +141,7 @@ class BaseContext extends RawMinkContext
         }
     }
 
-    protected function assertInverse(callable $callableStepDefinition, string $exceptionMessage = '')
+    protected function assertInverse(callable $callableStepDefinition, string $exceptionMessage = ''): void
     {
         try {
             $callableStepDefinition();

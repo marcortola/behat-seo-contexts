@@ -61,4 +61,4 @@ Feature: Meta feature
     Then the page meta robots should be noindex
 
     When I am on "/meta/robots/without-meta-robots.html"
-    Then the page meta robots should not be noindex    
+    Then the page meta robots should not be noindex

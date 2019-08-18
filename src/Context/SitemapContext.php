@@ -1,37 +1,43 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace MOrtola\BehatSEOContexts\Context;
 
+use DOMDocument;
+use DOMElement;
+use DOMXPath;
+use Exception;
+use InvalidArgumentException;
+use MOrtola\BehatSEOContexts\Exception\InvalidOrderException;
 use PHPUnit\Framework\Assert;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 class SitemapContext extends BaseContext
 {
-    const SITEMAP_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap.xsd';
-    const SITEMAP_XHTML_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap_xhtml.xsd';
-    const SITEMAP_INDEX_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap_index.xsd';
+    const SITEMAP_SCHEMA_FILE = __DIR__.'/../Resources/schemas/sitemap.xsd';
+    const SITEMAP_XHTML_SCHEMA_FILE = __DIR__.'/../Resources/schemas/sitemap_xhtml.xsd';
+    const SITEMAP_INDEX_SCHEMA_FILE = __DIR__.'/../Resources/schemas/sitemap_index.xsd';
 
     /**
-     * @var \DOMDocument
+     * @var DOMDocument
      */
     private $sitemapXml;
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Given the sitemap :sitemapUrl
      */
-    public function theSitemap(string $sitemapUrl)
+    public function theSitemap(string $sitemapUrl): void
     {
         $this->sitemapXml = $this->getSitemapXml($sitemapUrl);
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    private function getSitemapXml(string $sitemapUrl): \DOMDocument
+    private function getSitemapXml(string $sitemapUrl): DOMDocument
     {
-        $xml = new \DOMDocument();
+        $xml = new DOMDocument();
         @$xmlLoaded = $xml->load($this->toAbsoluteUrl($sitemapUrl));
 
         Assert::assertNotFalse($xmlLoaded, 'Error loading %s Sitemap using DOMDocument');
@@ -40,11 +46,11 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Then the index sitemap should have a child with URL :childSitemapUrl
      */
-    public function theIndexSitemapShouldHaveAChildWithUrl(string $childSitemapUrl)
+    public function theIndexSitemapShouldHaveAChildWithUrl(string $childSitemapUrl): void
     {
         $this->assertSitemapHasBeenRead();
 
@@ -65,20 +71,20 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    private function assertSitemapHasBeenRead()
+    private function assertSitemapHasBeenRead(): void
     {
-        if (!$this->sitemapXml) {
-            throw new \Exception(
+        if (!isset($this->sitemapXml)) {
+            throw new InvalidOrderException(
                 'You should execute "Given the sitemap :sitemapUrl" step before executing this step.'
             );
         }
     }
 
-    private function getXpathInspector(): \DOMXPath
+    private function getXpathInspector(): DOMXPath
     {
-        $xpath = new \DOMXPath($this->sitemapXml);
+        $xpath = new DOMXPath($this->sitemapXml);
         $xpath->registerNamespace('sm', 'http://www.sitemaps.org/schemas/sitemap/0.9');
         $xpath->registerNamespace('xhtml', 'http://www.w3.org/1999/xhtml');
 
@@ -86,15 +92,16 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Then /^the sitemap should have ([0-9]+) children$/
      */
-    public function theSitemapShouldHaveChildren(int $expectedChildrenCount)
+    public function theSitemapShouldHaveChildren(int $expectedChildrenCount): void
     {
         $this->assertSitemapHasBeenRead();
 
-        $sitemapChildrenCount = $this->getXpathInspector()
+        $sitemapChildrenCount = $this
+            ->getXpathInspector()
             ->query('/*[self::sm:sitemapindex or self::sm:urlset]/*[self::sm:sitemap or self::sm:url]/sm:loc')
             ->length;
 
@@ -111,11 +118,11 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Then the multilanguage sitemap should pass Google validation
      */
-    public function theMultilanguageSitemapShouldPassGoogleValidation()
+    public function theMultilanguageSitemapShouldPassGoogleValidation(): void
     {
         $this->assertSitemapHasBeenRead();
 
@@ -123,11 +130,19 @@ class SitemapContext extends BaseContext
 
         $urlsNodes = $this->getXpathInspector()->query('//sm:urlset/sm:url');
 
-        /** @var \DOMElement $urlNode */
+        /** @var DOMElement $urlNode */
         foreach ($urlsNodes as $urlNode) {
-            $urlLoc = $urlNode->getElementsByTagName('loc')->item(0)->nodeValue;
+            $urlElement = $urlNode->getElementsByTagName('loc')->item(0);
 
-            /** @var \DOMElement $alternateLink */
+            Assert::assertNotNull($urlElement);
+
+            if (!$urlElement) {
+                continue;
+            }
+
+            $urlLoc = $urlElement->nodeValue;
+
+            /** @var DOMElement $alternateLink */
             foreach ($urlNode->getElementsByTagName('link') as $alternateLink) {
                 $alternateLinkHref = $alternateLink->getAttribute('href');
 
@@ -152,9 +167,9 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    private function assertValidSitemap(string $sitemapSchemaFile)
+    private function assertValidSitemap(string $sitemapSchemaFile): void
     {
         Assert::assertFileExists(
             $sitemapSchemaFile,
@@ -172,28 +187,30 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Then the sitemap URLs should be alive
      */
-    public function theSitemapUrlsShouldBeAlive()
+    public function theSitemapUrlsShouldBeAlive(): void
     {
         $this->assertSitemapHasBeenRead();
 
         $locNodes = $this->getXpathInspector()->query('//sm:urlset/sm:url/sm:loc');
 
-        /** @var \DOMElement $locNode */
+        /** @var DOMElement $locNode */
         foreach ($locNodes as $locNode) {
             try {
                 $this->visit($locNode->nodeValue);
             } catch (RouteNotFoundException $e) {
-                throw new \Exception(
+                throw new InvalidArgumentException(
                     sprintf(
                         'Sitemap Url %s is not valid in Sitemap: %s. Exception: %s',
                         $locNode->nodeValue,
                         $this->sitemapXml->documentURI,
                         $e->getMessage()
-                    )
+                    ),
+                    0,
+                    $e
                 );
             }
 
@@ -213,7 +230,7 @@ class SitemapContext extends BaseContext
     /**
      * @Then /^the (index |multilanguage |)sitemap should not be valid$/
      */
-    public function theSitemapShouldNotBeValid(string $sitemapType = '')
+    public function theSitemapShouldNotBeValid(string $sitemapType = ''): void
     {
         $this->assertInverse(
             function () use ($sitemapType) {
@@ -224,11 +241,11 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Then /^the (index |multilanguage |)sitemap should be valid$/
      */
-    public function theSitemapShouldBeValid(string $sitemapType = '')
+    public function theSitemapShouldBeValid(string $sitemapType = ''): void
     {
         $this->assertSitemapHasBeenRead();
 
@@ -251,7 +268,7 @@ class SitemapContext extends BaseContext
     /**
      * @Then the multilanguage sitemap should not pass Google validation
      */
-    public function theMultilanguageSitemapShouldNotPassGoogleValidation()
+    public function theMultilanguageSitemapShouldNotPassGoogleValidation(): void
     {
         $this->assertInverse(
             [$this, 'theMultilanguageSitemapShouldPassGoogleValidation'],

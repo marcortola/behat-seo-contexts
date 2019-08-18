@@ -1,9 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Symfony2Extension\Driver\KernelDriver;
+use Exception;
+use InvalidArgumentException;
 use PHPUnit\Framework\Assert;
 use vipnytt\RobotsTxtParser\UriClient;
 
@@ -17,17 +19,17 @@ class RobotsContext extends BaseContext
     /**
      * @Given I am a :crawlerUserAgent crawler
      */
-    public function iAmACrawler(string $crawlerUserAgent)
+    public function iAmACrawler(string $crawlerUserAgent): void
     {
         $this->crawlerUserAgent = $crawlerUserAgent;
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Then I should not be able to crawl :resource
      */
-    public function iShouldNotBeAbleToCrawl(string $resource)
+    public function iShouldNotBeAbleToCrawl(string $resource): void
     {
         Assert::assertFalse(
             $this->getRobotsClient()->userAgent($this->crawlerUserAgent)->isAllowed($resource),
@@ -45,12 +47,12 @@ class RobotsContext extends BaseContext
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      * @throws UnsupportedDriverActionException
      *
      * @Then I should be able to get the sitemap URL
      */
-    public function iShouldBeAbleToGetTheSitemapUrl()
+    public function iShouldBeAbleToGetTheSitemapUrl(): void
     {
         $this->doesNotSupportDriver(KernelDriver::class);
 
@@ -72,13 +74,15 @@ class RobotsContext extends BaseContext
 
         try {
             $this->getSession()->visit($sitemaps[0]);
-        } catch (\Exception $e) {
-            throw new \Exception(
+        } catch (\Throwable $e) {
+            throw new InvalidArgumentException(
                 sprintf(
                     'Sitemap url %s is not valid. Exception: %s',
                     $sitemaps[0],
                     $e->getMessage()
-                )
+                ),
+                0,
+                $e
             );
         }
 
@@ -90,11 +94,11 @@ class RobotsContext extends BaseContext
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Then I should be able to crawl :resource
      */
-    public function iShouldBeAbleToCrawl(string $resource)
+    public function iShouldBeAbleToCrawl(string $resource): void
     {
         Assert::assertTrue(
             $this->getRobotsClient()->userAgent($this->crawlerUserAgent)->isAllowed($resource),

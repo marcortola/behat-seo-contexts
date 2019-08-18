@@ -1,9 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
+use Exception;
+use InvalidArgumentException;
 use PHPUnit\Framework\Assert;
 use Symfony\Component\BrowserKit\Client;
 
@@ -12,7 +14,7 @@ class RedirectContext extends BaseContext
     /**
      * @AfterScenario
      */
-    public function enableFollowRedirects()
+    public function enableFollowRedirects(): void
     {
         try {
             $this->iFollowRedirects();
@@ -26,7 +28,7 @@ class RedirectContext extends BaseContext
      *
      * @Given I follow redirects
      */
-    public function iFollowRedirects()
+    public function iFollowRedirects(): void
     {
         $this->getClient()->followRedirects(true);
     }
@@ -38,7 +40,11 @@ class RedirectContext extends BaseContext
     {
         $this->supportsDriver(BrowserKitDriver::class);
 
-        return $this->getSession()->getDriver()->getClient();
+        if (method_exists($this->getSession()->getDriver(), 'getClient')) {
+            return $this->getSession()->getDriver()->getClient();
+        }
+
+        throw new InvalidArgumentException();
     }
 
     /**
@@ -46,24 +52,22 @@ class RedirectContext extends BaseContext
      *
      * @Given I do not follow redirects
      */
-    public function iDoNotFollowRedirects()
+    public function iDoNotFollowRedirects(): void
     {
         $this->getClient()->followRedirects(false);
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      * @throws UnsupportedDriverActionException
      *
      * @Then I should be redirected to :url
      */
-    public function iShouldBeRedirected(string $url)
+    public function iShouldBeRedirected(string $url): void
     {
         $headers = array_change_key_case($this->getSession()->getResponseHeaders(), CASE_LOWER);
 
-        if (empty($headers['location'])) {
-            throw new \Exception('The response should contain a "Location" header');
-        }
+        Assert::assertArrayHasKey('location', $headers);
 
         if (isset($headers['location'][0])) {
             $headers['location'] = $headers['location'][0];

@@ -1,19 +1,20 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Element\NodeElement;
+use Exception;
 use Matriphe\ISO639\ISO639;
 use PHPUnit\Framework\Assert;
 
 class LocalizationContext extends BaseContext
 {
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Then the page hreflang markup should be valid
      */
-    public function thePageHreflangMarkupShouldBeValid()
+    public function thePageHreflangMarkupShouldBeValid(): void
     {
         $this->assertHreflangExists();
         $this->assertHreflangValidSelfReference();
@@ -22,7 +23,7 @@ class LocalizationContext extends BaseContext
         $this->assertHreflangValidReciprocal();
     }
 
-    private function assertHreflangExists()
+    private function assertHreflangExists(): void
     {
         Assert::assertNotEmpty(
             $this->getHreflangElements(),
@@ -41,7 +42,7 @@ class LocalizationContext extends BaseContext
         );
     }
 
-    private function assertHreflangValidSelfReference()
+    private function assertHreflangValidSelfReference(): void
     {
         $selfReferenceFound = false;
 
@@ -58,7 +59,7 @@ class LocalizationContext extends BaseContext
         );
     }
 
-    private function assertHreflangValidIsoCodes()
+    private function assertHreflangValidIsoCodes(): void
     {
         $localeIsoValidator = new ISO639();
         foreach ($this->getHreflangElements() as $hreflangMetaTag) {
@@ -85,7 +86,7 @@ class LocalizationContext extends BaseContext
         }
     }
 
-    private function assertHreflangCoherentXDefault()
+    private function assertHreflangCoherentXDefault(): void
     {
         foreach ($this->getHreflangElements() as $hreflangMetaTag) {
             if ('x-default' === $hreflangMetaTag->getAttribute('hreflang')) {
@@ -99,19 +100,38 @@ class LocalizationContext extends BaseContext
 
         foreach ($this->getHreflangElements() as $hreflangMetaTag) {
             if ('x-default' !== $hreflangMetaTag->getAttribute('hreflang')) {
-                $this->getSession()->visit($hreflangMetaTag->getAttribute('href'));
+                $href = $hreflangMetaTag->getAttribute('href');
+
+                Assert::assertNotNull($href);
+
+                if (null === $href) {
+                    continue;
+                }
+
+                $this->getSession()->visit($href);
+
+                $hreflangAltDefault = $this->getSession()->getPage()->find(
+                    'xpath',
+                    '//head/link[@rel="alternate" and @hreflang="x-default"]'
+                );
+
+                Assert::assertNotNull($hreflangAltDefault);
+
+                if (null === $hreflangAltDefault) {
+                    continue;
+                }
+
                 Assert::assertEquals(
                     $xDefault,
-                    $this->getSession()->getPage()
-                         ->find('xpath', '//head/link[@rel="alternate" and @hreflang="x-default"]')
-                         ->getAttribute('href')
+                    $hreflangAltDefault->getAttribute('href')
                 );
+
                 $this->getSession()->back();
             }
         }
     }
 
-    private function assertHreflangValidReciprocal()
+    private function assertHreflangValidReciprocal(): void
     {
         $currentPageHreflangLinks = [];
         foreach ($this->getHreflangElements() as $hreflangElement) {
@@ -125,9 +145,12 @@ class LocalizationContext extends BaseContext
                 continue;
             }
 
-            $this->getSession()->visit($currentPageHreflangLink);
+            if ($currentPageHreflangLink) {
+                $this->getSession()->visit($currentPageHreflangLink);
+            }
 
             $referencedPageHreflangLinks = [];
+
             foreach ($this->getHreflangElements() as $hreflangElement) {
                 $referencedPageHreflangLinks[$hreflangElement->getAttribute(
                     'hreflang'
@@ -145,11 +168,11 @@ class LocalizationContext extends BaseContext
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      *
      * @Then the page hreflang markup should not be valid
      */
-    public function thePageHreflangMarkupShouldNotBeValid()
+    public function thePageHreflangMarkupShouldNotBeValid(): void
     {
         $this->assertInverse(
             [$this, 'thePageHreflangMarkupShouldBeValid'],

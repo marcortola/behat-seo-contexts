@@ -2,7 +2,6 @@
 Feature: Robots feature
 
   Scenario: Testing page indexability status
-
     Given I am on "/indexation/meta-robots-index.html"
     Then the page should be indexable
 
