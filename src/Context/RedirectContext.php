@@ -4,10 +4,9 @@ namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
-use Exception;
 use InvalidArgumentException;
-use PHPUnit\Framework\Assert;
 use Symfony\Component\BrowserKit\Client;
+use Webmozart\Assert\Assert;
 
 class RedirectContext extends BaseContext
 {
@@ -58,7 +57,6 @@ class RedirectContext extends BaseContext
     }
 
     /**
-     * @throws Exception
      * @throws UnsupportedDriverActionException
      *
      * @Then I should be redirected to :url
@@ -67,13 +65,13 @@ class RedirectContext extends BaseContext
     {
         $headers = array_change_key_case($this->getSession()->getResponseHeaders(), CASE_LOWER);
 
-        Assert::assertArrayHasKey('location', $headers);
+        Assert::keyExists($headers, 'location');
 
         if (isset($headers['location'][0])) {
             $headers['location'] = $headers['location'][0];
         }
 
-        Assert::assertTrue(
+        Assert::true(
             $headers['location'] === $url || $this->locatePath($url) === $this->locatePath($headers['location']),
             'The "Location" header does not redirect to the correct URI'
         );

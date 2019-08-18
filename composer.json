@@ -22,7 +22,6 @@
     "matriphe/iso-639": "^1.2",
     "vipnytt/robotstxtparser": "^2.0",
     "rexxars/html-validator": "^2.1",
-    "phpunit/phpunit": "^6.0||^7.0||^8.0",
     "ext-dom": "*"
   },
   "require-dev": {
@@ -36,7 +35,8 @@
     "sensiolabs/security-checker": "^6.0",
     "symplify/easy-coding-standard": "^6.0",
     "thecodingmachine/phpstan-strict-rules": "^0.11.2",
-    "phpstan/phpstan-phpunit": "^0.11.2"
+    "phpstan/phpstan-webmozart-assert": "^0.11.2",
+    "webmozart/assert": "^1.4"
   },
   "autoload": {
     "psr-4": {

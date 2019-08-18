@@ -28,7 +28,6 @@ Basic requirements:
 * PHP 7.1+
 * Behat 3+
 * Mink + Mink extension
-* PHPUnit 6+
 
 ### How to install it
 

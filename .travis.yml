@@ -22,6 +22,5 @@ before_script:
   - if [ "$DEPENDENCIES" != "lowest" ]; then composer update --prefer-stable; fi;
 
 script:
-  - composer check-security
   - composer check-static
   - composer test

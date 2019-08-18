@@ -1,6 +1,6 @@
 includes:
     - vendor/phpstan/phpstan-deprecation-rules/rules.neon
-    - vendor/phpstan/phpstan-phpunit/rules.neon
+    - vendor/phpstan/phpstan-webmozart-assert/extension.neon
     - vendor/thecodingmachine/phpstan-strict-rules/phpstan-strict-rules.neon
 
 parameters:

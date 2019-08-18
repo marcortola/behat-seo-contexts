@@ -5,9 +5,8 @@ namespace MOrtola\BehatSEOContexts\Context;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Symfony2Extension\Driver\KernelDriver;
-use Exception;
 use InvalidArgumentException;
-use PHPUnit\Framework\Assert;
+use Webmozart\Assert\Assert;
 
 class PerformanceContext extends BaseContext
 {
@@ -24,14 +23,12 @@ class PerformanceContext extends BaseContext
     ];
 
     /**
-     * @throws Exception
-     *
      * @Then /^Javascript code should load (async|defer)$/
      */
     public function javascriptFilesShouldLoadAsync(): void
     {
         foreach ($this->getSelfHostedPageResources(self::RES_EXT['JAVASCRIPT']) as $scriptElement) {
-            Assert::assertTrue(
+            Assert::true(
                 $scriptElement->hasAttribute('async') || $scriptElement->hasAttribute('defer'),
                 sprintf(
                     'Javascript file %s is render blocking in %s',
@@ -54,13 +51,13 @@ class PerformanceContext extends BaseContext
         if ('external' === $host) {
             $xpath = preg_replace(
                 '/\[contains\(@(.*),/',
-                '[not(starts-with(@$1,"'.$this->webUrl.'") or starts-with(@$1,"/")) and contains(@$1,',
+                '[not(starts-with(@$1,"' . $this->webUrl . '") or starts-with(@$1,"/")) and contains(@$1,',
                 $xpath
             );
         } elseif (null !== $host) {
             $xpath = preg_replace(
                 '/\[contains\(@(.*),/',
-                '[(starts-with(@$1,"'.$host.'") or starts-with(@$1,"/")) and contains(@$1,',
+                '[(starts-with(@$1,"' . $host . '") or starts-with(@$1,"/")) and contains(@$1,',
                 $xpath
             );
         }
@@ -115,9 +112,6 @@ class PerformanceContext extends BaseContext
         return '';
     }
 
-    /**
-     * @throws Exception
-     */
     private function getResourceUrl(NodeElement $element, string $resourceType): ?string
     {
         $this->assertResourceTypeIsValid($resourceType);
@@ -153,8 +147,6 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @throws Exception
-     *
      * @Then HTML code should be minified
      */
     public function htmlShouldBeMinified(): void
@@ -167,7 +159,7 @@ class PerformanceContext extends BaseContext
 
     private function assertContentIsMinified(string $content, string $contentMinified): void
     {
-        Assert::assertSame(
+        Assert::same(
             $content,
             $contentMinified,
             'Code is not minified.'
@@ -180,13 +172,11 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @throws Exception
-     *
      * @Then CSS code should load deferred
      */
     public function cssFilesShouldLoadDeferred(): void
     {
-        Assert::assertEmpty(
+        Assert::isEmpty(
             $this->getSelfHostedPageResources(self::RES_EXT['CSS_LINK_HEAD']),
             sprintf(
                 'Some self hosted css files are loading in head in %s',
@@ -196,13 +186,11 @@ class PerformanceContext extends BaseContext
     }
 
     /**
-     * @throws Exception
-     *
      * @Then critical CSS code should exist in head
      */
     public function criticalCssShouldExistInHead(): void
     {
-        Assert::assertNotEmpty(
+        Assert::notEmpty(
             $this->getSelfHostedPageResources(self::RES_EXT['CSS_INLINE_HEAD']),
             sprintf(
                 'No inline css is loading in head in %s',
@@ -237,7 +225,6 @@ class PerformanceContext extends BaseContext
 
     /**
      * @throws UnsupportedDriverActionException
-     * @throws Exception
      * @Then /^(CSS|Javascript) code should be minified$/
      */
     public function cssOrJavascriptFilesShouldBeMinified(string $resourceType): void
@@ -264,30 +251,30 @@ class PerformanceContext extends BaseContext
 
     private function minimizeJs(string $javascript): string
     {
-        return preg_replace(
+        $minimized = preg_replace(
             [
-                       '#\s*("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')\s*|\s*\/\*(?!\!|@cc_on)(?>[\s\S]*?\*\/)\s*|
-                \s*(?<![\:\=])\/\/.*(?=[\n\r]|$)|^\s*|\s*$#',
-                       '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/)|\/(?!\/)[^\n\r]*?\/(?=[\s.,;]|
-                [gimuy]|$))|\s*([!%&*\(\)\-=+\[\]\{\}|;:,.<>?\/])\s*#s',
-                   ],
+                '#\s*("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')\s*|\s*\/\*(?!\!|@cc_on)(?>[\s\S]*?\*\/)\s*|\s*(?<![\:\=])\/\/.*(?=[\n\r]|$)|^\s*|\s*$#',
+                '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/)|\/(?!\/)[^\n\r]*?\/(?=[\s.,;]|[gimuy]|$))|\s*([!%&*\(\)\-=+\[\]\{\}|;:,.<>?\/])\s*#s',
+            ],
             ['$1', '$1$2'],
             $javascript
-        ) ?? $javascript;
+        );
+
+        return $minimized ?? $javascript;
     }
 
     private function minimizeCss(string $css): string
     {
-        return preg_replace(
+        $minimized = preg_replace(
             [
-                       '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')|\/\*(?!\!)(?>.*?\*\/)|^\s*|\s*$#s',
-                       '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/))|\s*+;\s*+(})\s*+|\s*+([*$~^|
-                ]?+=|[{};,>~+]|\s*+-(?![0-9\.])|!important\b)\s*+|([[(:])\s++|\s++([])])|\s++(:)\s*+(?!(?>[^{}"\']++|
-                "(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')*+{)|^\s++|\s++\z|(\s)\s+#si',
-                   ],
+                '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')|\/\*(?!\!)(?>.*?\*\/)|^\s*|\s*$#s',
+                '#("(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\'|\/\*(?>.*?\*\/))|\s*+;\s*+(})\s*+|\s*+([*$~^|]?+=|[{};,>~+]|\s*+-(?![0-9\.])|!important\b)\s*+|([[(:])\s++|\s++([])])|\s++(:)\s*+(?!(?>[^{}"\']++|"(?:[^"\\\]++|\\\.)*+"|\'(?:[^\'\\\\]++|\\\.)*+\')*+{)|^\s++|\s++\z|(\s)\s+#si',
+            ],
             ['$1', '$1$2$3$4$5$6$7'],
             $css
-        ) ?? $css;
+        );
+
+        return $minimized ?? $css;
     }
 
     /**
@@ -316,7 +303,6 @@ class PerformanceContext extends BaseContext
 
     /**
      * @throws UnsupportedDriverActionException
-     * @throws Exception
      * @Then /^browser cache should be enabled for (.+|external|internal) (png|jpeg|gif|ico|js|css) resources$/
      */
     public function browserCacheMustBeEnabledForResources(string $host, string $resourceType): void
@@ -332,7 +318,7 @@ class PerformanceContext extends BaseContext
                 break;
         }
 
-        Assert::assertNotEmpty(
+        Assert::notEmpty(
             $elements,
             sprintf(
                 'The are not %s resources in %s.',
@@ -347,38 +333,37 @@ class PerformanceContext extends BaseContext
         );
     }
 
-    /**
-     * @throws Exception
-     */
     private function checkResourceCache(NodeElement $element, string $resourceType): void
     {
-        if ($url = $this->getResourceUrl($element, $resourceType)) {
-            $this->getSession()->visit($url);
-        }
+        $url = $this->getResourceUrl($element, $resourceType);
 
+        Assert::notNull($url);
+
+        $this->getSession()->visit($url);
         $headers = array_change_key_case($this->getSession()->getResponseHeaders());
         $this->getSession()->back();
 
-        Assert::assertTrue(
-            array_key_exists('cache-control', $headers),
+        Assert::keyExists(
+            $headers,
+            'cache-control',
             sprintf(
                 'Browser cache is not enabled for %s resources. Cache-Control HTTP header was not received.',
                 $resourceType
             )
         );
 
-        Assert::assertNotContains(
+        Assert::notContains(
+            $headers['cache-control'][0],
             'no-cache',
-            $headers['cache-control'],
             sprintf(
                 'Browser cache is not enabled for %s resources. Cache-Control HTTP header is "no-cache".',
                 $resourceType
             )
         );
 
-        Assert::assertNotContains(
+        Assert::notContains(
+            $headers['cache-control'][0],
             'max-age=0',
-            $headers['cache-control'],
             sprintf(
                 'Browser cache is not enabled for %s resources. Cache-Control HTTP header is "max-age=0".',
                 $resourceType

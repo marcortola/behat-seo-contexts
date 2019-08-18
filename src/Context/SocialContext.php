@@ -2,9 +2,8 @@
 
 namespace MOrtola\BehatSEOContexts\Context;
 
-use Exception;
 use InvalidArgumentException;
-use PHPUnit\Framework\Assert;
+use Webmozart\Assert\Assert;
 
 class SocialContext extends BaseContext
 {
@@ -24,8 +23,6 @@ class SocialContext extends BaseContext
     }
 
     /**
-     * @throws Exception
-     *
      * @Then /^the (Twitter|Facebook) Open Graph data should satisfy (minimum|full) requirements$/
      */
     public function theOpenGraphDataShouldSatisfyRequirements(string $socialNetworkName, string $requirementsType): void
@@ -65,12 +62,9 @@ class SocialContext extends BaseContext
         }
     }
 
-    /**
-     * @throws Exception
-     */
     private function validateTwitterOpenGraphData(): void
     {
-        Assert::assertContains(
+        Assert::oneOf(
             $this->getOGMetaContent('twitter:card'),
             ['summary', 'summary_large_image', 'app', 'player'],
             'OG meta twitter:card contains invalid content'
@@ -79,21 +73,20 @@ class SocialContext extends BaseContext
         $this->getOGMetaContent('twitter:title');
     }
 
-    /**
-     * @throws Exception
-     */
     private function validateFullTwitterOpenGraphData(): void
     {
         $this->validateTwitterOpenGraphData();
 
-        Assert::assertNotFalse(
+        Assert::notEmpty(
             filter_var($this->getOGMetaContent('twitter:image'), FILTER_VALIDATE_URL)
         );
 
         $pathInfo = pathinfo($this->getOGMetaContent('twitter:image'));
 
+        Assert::keyExists($pathInfo, 'extension');
+
         if (isset($pathInfo['extension'])) {
-            Assert::assertContains(
+            Assert::oneOf(
                 $pathInfo['extension'],
                 ['jpg', 'jpeg', 'webp', 'png', 'gif'],
                 'OG meta twitter:image has valid extension. Allowed are: jpg/jpeg, png, webp, gif'
@@ -103,9 +96,6 @@ class SocialContext extends BaseContext
         $this->getOGMetaContent('twitter:description');
     }
 
-    /**
-     * @throws Exception
-     */
     private function getOGMetaContent(string $property): string
     {
         $ogMeta = $this->getSession()->getPage()->find(
@@ -113,33 +103,26 @@ class SocialContext extends BaseContext
             sprintf('//head/meta[@property="%1$s" or @name="%1$s"]', $property)
         );
 
-        Assert::assertNotNull(
+        Assert::notNull(
             $ogMeta,
             sprintf('Open Graph meta %s does not exist', $property)
         );
 
-        if ($ogMeta) {
-            Assert::assertNotEmpty(
-                $ogMeta->getAttribute('content'),
-                sprintf('Open Graph meta %s should not be empty', $property)
-            );
+        Assert::notEmpty(
+            $ogMeta->getAttribute('content'),
+            sprintf('Open Graph meta %s should not be empty', $property)
+        );
 
-            return $ogMeta->getAttribute('content') ?? '';
-        }
-
-        return '';
+        return $ogMeta->getAttribute('content') ?? '';
     }
 
-    /**
-     * @throws Exception
-     */
     private function validateFacebookOpenGraphData(): void
     {
-        Assert::assertNotFalse(
+        Assert::notEmpty(
             filter_var($this->getOGMetaContent('og:url'), FILTER_VALIDATE_URL)
         );
 
-        Assert::assertEquals(
+        Assert::eq(
             $this->getOGMetaContent('og:url'),
             $this->getCurrentUrl(),
             'OG meta og:url does not match expected url'
@@ -148,14 +131,16 @@ class SocialContext extends BaseContext
         $this->getOGMetaContent('og:title');
         $this->getOGMetaContent('og:description');
 
-        Assert::assertNotFalse(
+        Assert::notEmpty(
             filter_var($this->getOGMetaContent('og:image'), FILTER_VALIDATE_URL)
         );
 
         $pathInfo = pathinfo($this->getOGMetaContent('og:image'));
 
+        Assert::keyExists($pathInfo, 'extension');
+
         if (isset($pathInfo['extension'])) {
-            Assert::assertContains(
+            Assert::oneOf(
                 $pathInfo['extension'],
                 ['jpg', 'jpeg', 'png', 'gif'],
                 'OG meta og:image has valid extension. Allowed are: jpg/jpeg, png, gif'
@@ -163,14 +148,11 @@ class SocialContext extends BaseContext
         }
     }
 
-    /**
-     * @throws Exception
-     */
     private function validateFullFacebookOpenGraphData(): void
     {
         $this->validateFacebookOpenGraphData();
 
-        Assert::assertContains(
+        Assert::oneOf(
             $this->getOGMetaContent('og:type'),
             [
                 'article',
@@ -202,9 +184,9 @@ class SocialContext extends BaseContext
             'OG meta og:type contains invalid content.'
         );
 
-        Assert::assertRegExp(
-            '/^[a-z]{2}_[A-Z]{2}$/',
+        Assert::regex(
             $this->getOGMetaContent('og:locale'),
+            '/^[a-z]{2}_[A-Z]{2}$/',
             'OG meta og:locale does not follow the right format az_AZ.'
         );
     }

@@ -4,10 +4,9 @@ namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Symfony2Extension\Driver\KernelDriver;
-use Exception;
 use InvalidArgumentException;
-use PHPUnit\Framework\Assert;
 use vipnytt\RobotsTxtParser\UriClient;
+use Webmozart\Assert\Assert;
 
 class RobotsContext extends BaseContext
 {
@@ -25,13 +24,11 @@ class RobotsContext extends BaseContext
     }
 
     /**
-     * @throws Exception
-     *
      * @Then I should not be able to crawl :resource
      */
     public function iShouldNotBeAbleToCrawl(string $resource): void
     {
-        Assert::assertFalse(
+        Assert::false(
             $this->getRobotsClient()->userAgent($this->crawlerUserAgent)->isAllowed($resource),
             sprintf(
                 'Crawler with User-Agent %s is allowed to crawl %s',
@@ -47,7 +44,6 @@ class RobotsContext extends BaseContext
     }
 
     /**
-     * @throws Exception
      * @throws UnsupportedDriverActionException
      *
      * @Then I should be able to get the sitemap URL
@@ -58,14 +54,14 @@ class RobotsContext extends BaseContext
 
         $sitemaps = $this->getRobotsClient()->sitemap()->export();
 
-        Assert::assertFalse(
+        Assert::false(
             empty($sitemaps),
             sprintf('Crawler with User-Agent %s can not find a sitemap url in robots file.', $this->crawlerUserAgent)
         );
 
-        Assert::assertEquals(
+        Assert::count(
+            $sitemaps,
             1,
-            count($sitemaps),
             sprintf(
                 'Crawler with User-Agent %s has find more than 1 sitemap url in robots file.',
                 $this->crawlerUserAgent
@@ -86,7 +82,7 @@ class RobotsContext extends BaseContext
             );
         }
 
-        Assert::assertEquals(
+        Assert::eq(
             200,
             $this->getStatusCode(),
             sprintf('Sitemap url %s is not valid.', $sitemaps[0])
@@ -94,13 +90,11 @@ class RobotsContext extends BaseContext
     }
 
     /**
-     * @throws Exception
-     *
      * @Then I should be able to crawl :resource
      */
     public function iShouldBeAbleToCrawl(string $resource): void
     {
-        Assert::assertTrue(
+        Assert::true(
             $this->getRobotsClient()->userAgent($this->crawlerUserAgent)->isAllowed($resource),
             sprintf(
                 'Crawler with User-Agent %s is not allowed to crawl %s',

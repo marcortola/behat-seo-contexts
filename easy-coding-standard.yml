@@ -6,3 +6,6 @@ imports:
 services:
     PhpCsFixer\Fixer\ArrayNotation\ArraySyntaxFixer:
         syntax: short
+
+    PhpCsFixer\Fixer\Operator\ConcatSpaceFixer:
+        spacing: one

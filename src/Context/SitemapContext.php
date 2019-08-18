@@ -2,20 +2,21 @@
 
 namespace MOrtola\BehatSEOContexts\Context;
 
+use Behat\Mink\Exception\DriverException;
 use DOMDocument;
 use DOMElement;
+use DOMNodeList;
 use DOMXPath;
-use Exception;
 use InvalidArgumentException;
 use MOrtola\BehatSEOContexts\Exception\InvalidOrderException;
-use PHPUnit\Framework\Assert;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
+use Webmozart\Assert\Assert;
 
 class SitemapContext extends BaseContext
 {
-    const SITEMAP_SCHEMA_FILE = __DIR__.'/../Resources/schemas/sitemap.xsd';
-    const SITEMAP_XHTML_SCHEMA_FILE = __DIR__.'/../Resources/schemas/sitemap_xhtml.xsd';
-    const SITEMAP_INDEX_SCHEMA_FILE = __DIR__.'/../Resources/schemas/sitemap_index.xsd';
+    const SITEMAP_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap.xsd';
+    const SITEMAP_XHTML_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap_xhtml.xsd';
+    const SITEMAP_INDEX_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap_index.xsd';
 
     /**
      * @var DOMDocument
@@ -23,8 +24,6 @@ class SitemapContext extends BaseContext
     private $sitemapXml;
 
     /**
-     * @throws Exception
-     *
      * @Given the sitemap :sitemapUrl
      */
     public function theSitemap(string $sitemapUrl): void
@@ -32,21 +31,18 @@ class SitemapContext extends BaseContext
         $this->sitemapXml = $this->getSitemapXml($sitemapUrl);
     }
 
-    /**
-     * @throws Exception
-     */
     private function getSitemapXml(string $sitemapUrl): DOMDocument
     {
         $xml = new DOMDocument();
         @$xmlLoaded = $xml->load($this->toAbsoluteUrl($sitemapUrl));
 
-        Assert::assertNotFalse($xmlLoaded, 'Error loading %s Sitemap using DOMDocument');
+        Assert::true($xmlLoaded, 'Error loading %s Sitemap using DOMDocument');
 
         return $xml;
     }
 
     /**
-     * @throws Exception
+     * @throws InvalidOrderException
      *
      * @Then the index sitemap should have a child with URL :childSitemapUrl
      */
@@ -59,9 +55,9 @@ class SitemapContext extends BaseContext
             $childSitemapUrl
         );
 
-        Assert::assertGreaterThanOrEqual(
-            1,
+        Assert::greaterThanEq(
             $this->getXpathInspector()->query($xpathExpression)->length,
+            1,
             sprintf(
                 'Sitemap index %s has not child sitemap %s',
                 $this->sitemapXml->documentURI,
@@ -71,7 +67,7 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @throws Exception
+     * @throws InvalidOrderException
      */
     private function assertSitemapHasBeenRead(): void
     {
@@ -92,7 +88,7 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @throws Exception
+     * @throws InvalidOrderException
      *
      * @Then /^the sitemap should have ([0-9]+) children$/
      */
@@ -105,7 +101,7 @@ class SitemapContext extends BaseContext
             ->query('/*[self::sm:sitemapindex or self::sm:urlset]/*[self::sm:sitemap or self::sm:url]/sm:loc')
             ->length;
 
-        Assert::assertEquals(
+        Assert::eq(
             $expectedChildrenCount,
             $sitemapChildrenCount,
             sprintf(
@@ -118,7 +114,7 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @throws Exception
+     * @throws InvalidOrderException
      *
      * @Then the multilanguage sitemap should pass Google validation
      */
@@ -134,11 +130,7 @@ class SitemapContext extends BaseContext
         foreach ($urlsNodes as $urlNode) {
             $urlElement = $urlNode->getElementsByTagName('loc')->item(0);
 
-            Assert::assertNotNull($urlElement);
-
-            if (!$urlElement) {
-                continue;
-            }
+            Assert::notNull($urlElement);
 
             $urlLoc = $urlElement->nodeValue;
 
@@ -151,9 +143,9 @@ class SitemapContext extends BaseContext
                         sprintf('//sm:urlset/sm:url/sm:loc[text()="%s"]', $alternateLinkHref)
                     );
 
-                    Assert::assertGreaterThanOrEqual(
-                        1,
+                    Assert::greaterThanEq(
                         $alternateLinkNodes->length,
+                        1,
                         sprintf(
                             'Url %s has not reciprocous URL for alternative link %s in Sitemap %s',
                             $urlLoc,
@@ -166,17 +158,14 @@ class SitemapContext extends BaseContext
         }
     }
 
-    /**
-     * @throws Exception
-     */
     private function assertValidSitemap(string $sitemapSchemaFile): void
     {
-        Assert::assertFileExists(
+        Assert::fileExists(
             $sitemapSchemaFile,
             sprintf('Sitemap schema file %s does not exist', $sitemapSchemaFile)
         );
 
-        Assert::assertTrue(
+        Assert::true(
             @$this->sitemapXml->schemaValidate($sitemapSchemaFile),
             sprintf(
                 'Sitemap %s does not pass validation using %s schema',
@@ -187,7 +176,8 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @throws Exception
+     * @throws InvalidOrderException
+     * @throws DriverException
      *
      * @Then the sitemap URLs should be alive
      */
@@ -197,7 +187,8 @@ class SitemapContext extends BaseContext
 
         $locNodes = $this->getXpathInspector()->query('//sm:urlset/sm:url/sm:loc');
 
-        /** @var DOMElement $locNode */
+        Assert::isInstanceOf($locNodes, DOMNodeList::class);
+
         foreach ($locNodes as $locNode) {
             try {
                 $this->visit($locNode->nodeValue);
@@ -214,7 +205,7 @@ class SitemapContext extends BaseContext
                 );
             }
 
-            Assert::assertEquals(
+            Assert::eq(
                 200,
                 $this->getStatusCode(),
                 sprintf(
@@ -241,7 +232,7 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @throws Exception
+     * @throws InvalidOrderException
      *
      * @Then /^the (index |multilanguage |)sitemap should be valid$/
      */

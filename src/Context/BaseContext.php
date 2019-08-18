@@ -7,10 +7,8 @@ use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Symfony2Extension\Driver\KernelDriver;
-use Exception;
 use InvalidArgumentException;
 use MOrtola\BehatSEOContexts\Exception\TimeoutException;
-use PHPUnit\Framework\ExpectationFailedException;
 
 class BaseContext extends RawMinkContext
 {
@@ -71,7 +69,7 @@ class BaseContext extends RawMinkContext
     }
 
     /**
-     * @throws Exception
+     * @throws TimeoutException
      */
     protected function spin(callable $closure, int $seconds = 5): bool
     {
@@ -145,10 +143,10 @@ class BaseContext extends RawMinkContext
     {
         try {
             $callableStepDefinition();
-        } catch (ExpectationFailedException $e) {
+        } catch (InvalidArgumentException $e) {
             return;
         }
 
-        throw new ExpectationFailedException($exceptionMessage);
+        throw new InvalidArgumentException($exceptionMessage);
     }
 }

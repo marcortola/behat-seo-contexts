@@ -3,10 +3,10 @@
 namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Behat\Tester\Exception\PendingException;
-use Exception;
 use HtmlValidator\Exception\ServerException;
+use HtmlValidator\Exception\UnknownParserException;
 use HtmlValidator\Validator;
-use PHPUnit\Framework\ExpectationFailedException;
+use InvalidArgumentException;
 
 class HTMLContext extends BaseContext
 {
@@ -17,8 +17,6 @@ class HTMLContext extends BaseContext
     ];
 
     /**
-     * @throws Exception
-     *
      * @Then the page HTML markup should be valid
      */
     public function thePageHtmlMarkupShouldBeValid(): void
@@ -28,7 +26,7 @@ class HTMLContext extends BaseContext
                 $validator       = new Validator($validatorService);
                 $validatorResult = $validator->validateDocument($this->getSession()->getPage()->getContent());
                 break;
-            } catch (ServerException $e) {
+            } catch (ServerException | UnknownParserException $e) {
                 // @ignoreException
             }
         }
@@ -36,7 +34,7 @@ class HTMLContext extends BaseContext
         if (!isset($validatorResult)) {
             throw new PendingException('HTML validation services are not working');
         } elseif (isset($validatorResult->getErrors()[0])) {
-            throw new ExpectationFailedException(
+            throw new InvalidArgumentException(
                 sprintf(
                     'HTML markup validation error: Line %s: "%s" - %s in %s',
                     $validatorResult->getErrors()[0]->getFirstLine(),
@@ -49,8 +47,6 @@ class HTMLContext extends BaseContext
     }
 
     /**
-     * @throws Exception
-     *
      * @Then the page HTML markup should not be valid
      */
     public function thePageHtmlMarkupShouldNotBeValid(): void

@@ -4,8 +4,7 @@ namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Behat\Context\Environment\InitializedContextEnvironment;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
-use Exception;
-use PHPUnit\Framework\Assert;
+use Webmozart\Assert\Assert;
 
 class IndexationContext extends BaseContext
 {
@@ -44,8 +43,6 @@ class IndexationContext extends BaseContext
     }
 
     /**
-     * @throws Exception
-     *
      * @Then the page should be indexable
      */
     public function thePageShouldBeIndexable(): void
@@ -53,12 +50,10 @@ class IndexationContext extends BaseContext
         $this->metaContext->thePageShouldNotBeNoindex();
         $this->robotsContext->iShouldBeAbleToCrawl($this->getCurrentUrl());
 
-        $robotsHeaderTag = $this->getResponseHeader('X-Robots-Tag');
-
-        if ($robotsHeaderTag) {
-            Assert::assertNotContains(
-                'noindex',
+        if ($robotsHeaderTag = $this->getResponseHeader('X-Robots-Tag')) {
+            Assert::notContains(
                 strtolower($robotsHeaderTag),
+                'noindex',
                 sprintf(
                     'Url %s should not send X-Robots-Tag HTTP header with noindex value: %s',
                     $this->getCurrentUrl(),

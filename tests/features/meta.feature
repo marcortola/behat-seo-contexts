@@ -38,7 +38,6 @@ Feature: Meta feature
     Then the page meta description should not exist
 
   Scenario: Testing page meta robots
-
     Given I am on "/meta/robots/bad-meta-robots.html"
     Then the page meta robots should not be noindex
 

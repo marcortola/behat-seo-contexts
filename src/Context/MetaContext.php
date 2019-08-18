@@ -3,35 +3,31 @@
 namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Element\NodeElement;
-use Exception;
-use PHPUnit\Framework\Assert;
+use Webmozart\Assert\Assert;
 
 class MetaContext extends BaseContext
 {
     /**
-     * @throws Exception
-     *
      * @Then the page canonical should be :expectedCanonicalUrl
      */
     public function thePageCanonicalShouldBe(string $expectedCanonicalUrl): void
     {
         $this->assertCanonicalElementExists();
 
-        if ($canonicalElement = $this->getCanonicalElement()) {
-            Assert::assertEquals(
-                $this->toAbsoluteUrl($expectedCanonicalUrl),
-                $canonicalElement->getAttribute('href'),
-                sprintf('Canonical url should be "%s"', $this->toAbsoluteUrl($expectedCanonicalUrl))
-            );
-        }
+        $canonicalElement = $this->getCanonicalElement();
+
+        Assert::notNull($canonicalElement);
+
+        Assert::eq(
+            $this->toAbsoluteUrl($expectedCanonicalUrl),
+            $canonicalElement->getAttribute('href'),
+            sprintf('Canonical url should be "%s"', $this->toAbsoluteUrl($expectedCanonicalUrl))
+        );
     }
 
-    /**
-     * @throws Exception
-     */
     private function assertCanonicalElementExists(): void
     {
-        Assert::assertNotNull(
+        Assert::notNull(
             $this->getCanonicalElement(),
             'Canonical element does not exist'
         );
@@ -46,20 +42,20 @@ class MetaContext extends BaseContext
     }
 
     /**
-     * @throws Exception
-     *
      * @Then the page canonical should not be empty
      */
     public function thePageCanonicalShouldNotBeEmpty(): void
     {
         $this->assertCanonicalElementExists();
 
-        if ($canonicalElement = $this->getCanonicalElement()) {
-            Assert::assertNotEmpty(
-                trim($canonicalElement->getAttribute('href') ?? ''),
-                'Canonical url is empty'
-            );
-        }
+        $canonicalElement = $this->getCanonicalElement();
+
+        Assert::notNull($canonicalElement);
+
+        Assert::notEmpty(
+            trim($canonicalElement->getAttribute('href') ?? ''),
+            'Canonical url is empty'
+        );
     }
 
     /**
@@ -69,22 +65,20 @@ class MetaContext extends BaseContext
     {
         $metaRobotsElement = $this->getMetaRobotsElement();
 
-        Assert::assertNotNull(
+        Assert::notNull(
             $metaRobotsElement,
             'Meta robots does not exist.'
         );
 
-        if ($metaRobotsElement) {
-            Assert::assertContains(
-                'noindex',
-                strtolower($metaRobotsElement->getAttribute('content') ?? ''),
-                sprintf(
-                    'Url %s is not noindex: %s',
-                    $this->getCurrentUrl(),
-                    $this->getOuterHtml($metaRobotsElement)
-                )
-            );
-        }
+        Assert::contains(
+            strtolower($metaRobotsElement->getAttribute('content') ?? ''),
+            'noindex',
+            sprintf(
+                'Url %s is not noindex: %s',
+                $this->getCurrentUrl(),
+                $metaRobotsElement->getHtml()
+            )
+        );
     }
 
     private function getMetaRobotsElement(): ?NodeElement
@@ -107,32 +101,29 @@ class MetaContext extends BaseContext
     }
 
     /**
-     * @throws Exception
-     *
      * @Then /^the page title should be "(?P<expectedTitle>[^"]*)"$/
      */
     public function thePageTitleShouldBe(string $expectedTitle): void
     {
         $this->assertTitleElementExists();
 
-        if ($titleElement = $this->getTitleElement()) {
-            Assert::assertEquals(
-                $expectedTitle,
-                $titleElement->getText(),
-                sprintf(
-                    'Title tag is not "%s"',
-                    $expectedTitle
-                )
-            );
-        }
+        $titleElement = $this->getTitleElement();
+
+        Assert::notNull($titleElement);
+
+        Assert::eq(
+            $expectedTitle,
+            $titleElement->getText(),
+            sprintf(
+                'Title tag is not "%s"',
+                $expectedTitle
+            )
+        );
     }
 
-    /**
-     * @throws Exception
-     */
     private function assertTitleElementExists(): void
     {
-        Assert::assertNotNull(
+        Assert::notNull(
             $this->getTitleElement(),
             'Title tag does not exist'
         );
@@ -144,66 +135,63 @@ class MetaContext extends BaseContext
     }
 
     /**
-     * @throws Exception
-     *
      * @Then the page title should be empty
      */
     public function thePageTitleShouldBeEmpty(): void
     {
         $this->assertTitleElementExists();
 
-        if ($titleElement = $this->getTitleElement()) {
-            Assert::assertEmpty(
-                trim($titleElement->getText()),
-                'Title tag is not empty'
-            );
-        }
+        $titleElement = $this->getTitleElement();
+
+        Assert::notNull($titleElement);
+
+        Assert::isEmpty(
+            trim($titleElement->getText()),
+            'Title tag is not empty'
+        );
     }
 
     /**
-     * @throws Exception
-     *
      * @Then the page title should not be empty
      */
     public function thePageTitleShouldNotBeEmpty(): void
     {
         $this->assertTitleElementExists();
 
-        if ($titleElement = $this->getTitleElement()) {
-            Assert::assertNotEmpty(
-                trim($titleElement->getText()),
-                'Title tag is empty'
-            );
-        }
+        $titleElement = $this->getTitleElement();
+
+        Assert::notNull($titleElement);
+
+        Assert::notEmpty(
+            trim($titleElement->getText()),
+            'Title tag is empty'
+        );
     }
 
     /**
-     * @throws Exception
-     *
      * @Then /^the page meta description should be "(?P<expectedMetaDescription>[^"]*)"$/
      */
     public function thePageMetaDescriptionShouldBe(string $expectedMetaDescription): void
     {
         $this->assertPageMetaDescriptionElementExists();
 
-        if ($metaDescription = $this->getMetaDescriptionElement()) {
-            Assert::assertEquals(
-                $expectedMetaDescription,
-                $metaDescription->getAttribute('content'),
-                sprintf(
-                    'Meta description is not "%s"',
-                    $expectedMetaDescription
-                )
-            );
-        }
+        $metaDescription = $this->getMetaDescriptionElement();
+
+        Assert::notNull($metaDescription);
+
+        Assert::eq(
+            $expectedMetaDescription,
+            $metaDescription->getAttribute('content'),
+            sprintf(
+                'Meta description is not "%s"',
+                $expectedMetaDescription
+            )
+        );
     }
 
-    /**
-     * @throws Exception
-     */
     private function assertPageMetaDescriptionElementExists(): void
     {
-        Assert::assertNotNull(
+        Assert::notNull(
             $this->getMetaDescriptionElement(),
             'Meta description does not exist'
         );
@@ -218,37 +206,37 @@ class MetaContext extends BaseContext
     }
 
     /**
-     * @throws Exception
-     *
      * @Then the page meta description should be empty
      */
     public function thePageMetaDescriptionBeEmpty(): void
     {
         $this->assertPageMetaDescriptionElementExists();
 
-        if ($metaDescription = $this->getMetaDescriptionElement()) {
-            Assert::assertEmpty(
-                trim($metaDescription->getAttribute('content') ?? ''),
-                'Meta description is not empty'
-            );
-        }
+        $metaDescription = $this->getMetaDescriptionElement();
+
+        Assert::notNull($metaDescription);
+
+        Assert::isEmpty(
+            trim($metaDescription->getAttribute('content') ?? ''),
+            'Meta description is not empty'
+        );
     }
 
     /**
-     * @throws Exception
-     *
      * @Then the page meta description should not be empty
      */
     public function thePageMetaDescriptionNotBeEmpty(): void
     {
         $this->assertPageMetaDescriptionElementExists();
 
-        if ($metaDescription = $this->getMetaDescriptionElement()) {
-            Assert::assertNotEmpty(
-                trim($metaDescription->getAttribute('content') ?? ''),
-                'Meta description is empty'
-            );
-        }
+        $metaDescription = $this->getMetaDescriptionElement();
+
+        Assert::notNull($metaDescription);
+
+        Assert::notEmpty(
+            trim($metaDescription->getAttribute('content') ?? ''),
+            'Meta description is empty'
+        );
     }
 
     /**
@@ -256,7 +244,7 @@ class MetaContext extends BaseContext
      */
     public function thePageCanonicalShouldNotExist(): void
     {
-        Assert::assertNull(
+        Assert::null(
             $this->getCanonicalElement(),
             'Canonical does exist'
         );
@@ -267,7 +255,7 @@ class MetaContext extends BaseContext
      */
     public function thePageTitleShouldNotExist(): void
     {
-        Assert::assertNull(
+        Assert::null(
             $this->getTitleElement(),
             'Title tag does exist.'
         );
@@ -278,7 +266,7 @@ class MetaContext extends BaseContext
      */
     public function thePageMetaDescriptionShouldNotExist(): void
     {
-        Assert::assertNull(
+        Assert::null(
             $this->getMetaDescriptionElement(),
             'Meta description does exist'
         );

@@ -3,15 +3,12 @@
 namespace MOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Element\NodeElement;
-use Exception;
 use Matriphe\ISO639\ISO639;
-use PHPUnit\Framework\Assert;
+use Webmozart\Assert\Assert;
 
 class LocalizationContext extends BaseContext
 {
     /**
-     * @throws Exception
-     *
      * @Then the page hreflang markup should be valid
      */
     public function thePageHreflangMarkupShouldBeValid(): void
@@ -25,7 +22,7 @@ class LocalizationContext extends BaseContext
 
     private function assertHreflangExists(): void
     {
-        Assert::assertNotEmpty(
+        Assert::notEmpty(
             $this->getHreflangElements(),
             sprintf('No hreflang meta tags have been found in %s', $this->getCurrentUrl())
         );
@@ -53,7 +50,7 @@ class LocalizationContext extends BaseContext
             }
         }
 
-        Assert::assertTrue(
+        Assert::true(
             $selfReferenceFound,
             sprintf('No self-referencing hreflang meta tag has been found in %s', $this->getCurrentUrl())
         );
@@ -69,12 +66,12 @@ class LocalizationContext extends BaseContext
                 continue;
             }
 
-            Assert::assertNotEmpty(
+            Assert::notEmpty(
                 $alternateLocale,
                 'hreflang locale should not be empty.'
             );
 
-            Assert::assertNotEmpty(
+            Assert::notEmpty(
                 $localeIsoValidator->languageByCode1($alternateLocale),
                 sprintf(
                     'Wrong locale ISO-639-1 code "%s" in hreflang meta tag in url %s: %s',
@@ -102,11 +99,7 @@ class LocalizationContext extends BaseContext
             if ('x-default' !== $hreflangMetaTag->getAttribute('hreflang')) {
                 $href = $hreflangMetaTag->getAttribute('href');
 
-                Assert::assertNotNull($href);
-
-                if (null === $href) {
-                    continue;
-                }
+                Assert::notNull($href);
 
                 $this->getSession()->visit($href);
 
@@ -115,13 +108,9 @@ class LocalizationContext extends BaseContext
                     '//head/link[@rel="alternate" and @hreflang="x-default"]'
                 );
 
-                Assert::assertNotNull($hreflangAltDefault);
+                Assert::notNull($hreflangAltDefault);
 
-                if (null === $hreflangAltDefault) {
-                    continue;
-                }
-
-                Assert::assertEquals(
+                Assert::eq(
                     $xDefault,
                     $hreflangAltDefault->getAttribute('href')
                 );
@@ -159,7 +148,7 @@ class LocalizationContext extends BaseContext
 
             $this->getSession()->back();
 
-            Assert::assertEquals(
+            Assert::eq(
                 $currentPageHreflangLinks,
                 $referencedPageHreflangLinks,
                 'Missing or not coherent hreflang reciprocal links.'
@@ -168,8 +157,6 @@ class LocalizationContext extends BaseContext
     }
 
     /**
-     * @throws Exception
-     *
      * @Then the page hreflang markup should not be valid
      */
     public function thePageHreflangMarkupShouldNotBeValid(): void
