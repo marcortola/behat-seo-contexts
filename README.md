@@ -102,6 +102,7 @@ Then the index sitemap should have a child with URL :childSitemapUrl
 Then /^the sitemap should have ([0-9]+) children$/
 Then the multilanguage sitemap should pass Google validation
 Then the sitemap URLs should be alive
+Then /^(\d+) random sitemap URLs? should be alive$/
 ```
 ##### HTMLContext
 ```gherkin

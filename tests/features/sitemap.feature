@@ -26,6 +26,8 @@ Feature: Sitemap feature
     And the multilanguage sitemap should pass Google validation
     And the sitemap should have 3 children
     And the sitemap URLs should be alive
+    And 2 random sitemap URLs should be alive
+    And 1 random sitemap URL should be alive
 
     When the sitemap "/sitemap/invalid-multilanguage-sitemap.xml"
     Then the multilanguage sitemap should not be valid
