@@ -2,8 +2,10 @@
 
 namespace MOrtola\BehatSEOContexts\Context;
 
+use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
+use Behat\Mink\Session;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Symfony2Extension\Driver\KernelDriver;
 use PHPUnit\Framework\ExpectationFailedException;
@@ -21,6 +23,31 @@ class BaseContext extends RawMinkContext
     public function setupWebUrl()
     {
         $this->webUrl = $this->getMinkParameter('base_url');
+    }
+
+    protected function getOuterHtml(NodeElement $nodeElement): string
+    {
+        if (method_exists($nodeElement, 'getOuterHtml')) {
+            return $nodeElement->getOuterHtml();
+        }
+
+        return $nodeElement->getHtml();
+    }
+
+    /**
+     * @return string|null
+     */
+    protected function getResponseHeader(string $header)
+    {
+        if (method_exists($this->getSession(), 'getResponseHeader')) {
+            return $this->getSession()->getResponseHeader($header);
+        }
+
+        if (isset($this->getSession()->getResponseHeaders()[$header][0])) {
+            return $this->getSession()->getResponseHeaders()[$header][0];
+        }
+
+        return null;
     }
 
     /**

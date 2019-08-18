@@ -22,7 +22,7 @@ class MetaContext extends BaseContext
             sprintf('Canonical url should be "%s"', $this->toAbsoluteUrl($expectedCanonicalUrl))
         );
     }
-    
+
     /**
      * @throws \Exception
      *
@@ -44,11 +44,11 @@ class MetaContext extends BaseContext
     private function getCanonicalElement()
     {
         return $this->getSession()->getPage()->find(
-                'xpath',
-                '//head/link[@rel="canonical"]'
+            'xpath',
+            '//head/link[@rel="canonical"]'
         );
     }
-    
+
     /**
      * @throws \Exception
      */
@@ -76,7 +76,7 @@ class MetaContext extends BaseContext
             sprintf(
                 'Url %s is not noindex: %s',
                 $this->getCurrentUrl(),
-                $this->getMetaRobotsElement()->getOuterHtml()
+                $this->getOuterHtml($this->getMetaRobotsElement())
             )
         );
     }
@@ -87,8 +87,8 @@ class MetaContext extends BaseContext
     private function getMetaRobotsElement()
     {
         return $this->getSession()->getPage()->find(
-                'xpath',
-                '//head/meta[@name="robots"]'
+            'xpath',
+            '//head/meta[@name="robots"]'
         );
     }
 
@@ -106,7 +106,7 @@ class MetaContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then the page title should be :expectedTitle
+     * @Then /^the page title should be "(?P<expectedTitle>[^"]*)"$/
      */
     public function thePageTitleShouldBe(string $expectedTitle)
     {
@@ -119,6 +119,21 @@ class MetaContext extends BaseContext
                 'Title tag is not "%s"',
                 $expectedTitle
             )
+        );
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @Then the page title should be empty
+     */
+    public function thePageTitleShouldBeEmpty()
+    {
+        $this->assertTitleElementExists();
+
+        Assert::assertEmpty(
+            trim($this->getTitleElement()->getText()),
+            'Title tag is not empty'
         );
     }
 
@@ -159,7 +174,7 @@ class MetaContext extends BaseContext
     /**
      * @throws \Exception
      *
-     * @Then the page meta description should be :expectedMetaDescription
+     * @Then /^the page meta description should be "(?P<expectedMetaDescription>[^"]*)"$/
      */
     public function thePageMetaDescriptionShouldBe(string $expectedMetaDescription)
     {
@@ -172,6 +187,21 @@ class MetaContext extends BaseContext
                 'Meta description is not "%s"',
                 $expectedMetaDescription
             )
+        );
+    }
+
+    /**
+     * @throws \Exception
+     *
+     * @Then the page meta description should be empty
+     */
+    public function thePageMetaDescriptionBeEmpty()
+    {
+        $this->assertPageMetaDescriptionElementExists();
+
+        Assert::assertEmpty(
+            trim($this->getMetaDescriptionElement()->getAttribute('content')),
+            'Meta description is not empty'
         );
     }
 
@@ -196,8 +226,8 @@ class MetaContext extends BaseContext
     private function getMetaDescriptionElement()
     {
         return $this->getSession()->getPage()->find(
-                'xpath',
-                '//head/meta[@name="description"]'
+            'xpath',
+            '//head/meta[@name="description"]'
         );
     }
 

@@ -19,7 +19,7 @@ Feature: Meta feature
     Then the page title should not be empty
 
     When I am on "/meta/with-empty-seo-meta.html"
-    Then the page title should be ""
+    Then the page title should be empty
 
     When I am on "/meta/without-seo-meta.html"
     Then the page title should not exist
@@ -32,7 +32,7 @@ Feature: Meta feature
     Then the page meta description should not be empty
 
     When I am on "/meta/with-empty-seo-meta.html"
-    Then the page meta description should be ""
+    Then the page meta description should be empty
 
     When I am on "/meta/without-seo-meta.html"
     Then the page meta description should not exist

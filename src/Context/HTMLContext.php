@@ -2,6 +2,7 @@
 
 namespace MOrtola\BehatSEOContexts\Context;
 
+use Behat\Behat\Tester\Exception\PendingException;
 use HtmlValidator\Response;
 use HtmlValidator\Validator;
 use PHPUnit\Framework\ExpectationFailedException;
@@ -11,7 +12,7 @@ class HTMLContext extends BaseContext
     const VALIDATION_SERVICES = [
         Validator::DEFAULT_VALIDATOR_URL,
         'https://validator.nu/',
-        'https://validator.w3.org/nu/'
+        'https://validator.w3.org/nu/',
     ];
 
     /**
@@ -32,7 +33,7 @@ class HTMLContext extends BaseContext
         }
 
         if (!isset($validatorResult)) {
-            throw new \Exception('HTML validation services are not working.');
+            throw new PendingException('HTML validation services are not working');
         } elseif (isset($validatorResult->getErrors()[0])) {
             throw new ExpectationFailedException(
                 sprintf(

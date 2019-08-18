@@ -79,7 +79,7 @@ class LocalizationContext extends BaseContext
                     'Wrong locale ISO-639-1 code "%s" in hreflang meta tag in url %s: %s',
                     $alternateLocale,
                     $this->getCurrentUrl(),
-                    $hreflangMetaTag->getOuterHtml()
+                    $this->getOuterHtml($hreflangMetaTag)
                 )
             );
         }
@@ -103,8 +103,8 @@ class LocalizationContext extends BaseContext
                 Assert::assertEquals(
                     $xDefault,
                     $this->getSession()->getPage()
-                        ->find('xpath', '//head/link[@rel="alternate" and @hreflang="x-default"]')
-                        ->getAttribute('href')
+                         ->find('xpath', '//head/link[@rel="alternate" and @hreflang="x-default"]')
+                         ->getAttribute('href')
                 );
                 $this->getSession()->back();
             }
@@ -115,7 +115,9 @@ class LocalizationContext extends BaseContext
     {
         $currentPageHreflangLinks = [];
         foreach ($this->getHreflangElements() as $hreflangElement) {
-            $currentPageHreflangLinks[$hreflangElement->getAttribute('hreflang')] = $hreflangElement->getAttribute('href');
+            $currentPageHreflangLinks[$hreflangElement->getAttribute('hreflang')] = $hreflangElement->getAttribute(
+                'href'
+            );
         }
 
         foreach ($currentPageHreflangLinks as $currentPageHreflangLink) {
@@ -127,7 +129,9 @@ class LocalizationContext extends BaseContext
 
             $referencedPageHreflangLinks = [];
             foreach ($this->getHreflangElements() as $hreflangElement) {
-                $referencedPageHreflangLinks[$hreflangElement->getAttribute('hreflang')] = $hreflangElement->getAttribute('href');
+                $referencedPageHreflangLinks[$hreflangElement->getAttribute(
+                    'hreflang'
+                )] = $hreflangElement->getAttribute('href');
             }
 
             $this->getSession()->back();

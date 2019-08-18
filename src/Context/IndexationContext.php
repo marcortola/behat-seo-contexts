@@ -24,7 +24,7 @@ class IndexationContext extends BaseContext
     public function gatherContexts(BeforeScenarioScope $scope)
     {
         $this->robotsContext = $scope->getEnvironment()->getContext(RobotsContext::class);
-        $this->metaContext = $scope->getEnvironment()->getContext(MetaContext::class);
+        $this->metaContext   = $scope->getEnvironment()->getContext(MetaContext::class);
     }
 
     /**
@@ -48,7 +48,7 @@ class IndexationContext extends BaseContext
         $this->metaContext->thePageShouldNotBeNoindex();
         $this->robotsContext->iShouldBeAbleToCrawl($this->getCurrentUrl());
 
-        $robotsHeaderTag = $this->getSession()->getResponseHeader('X-Robots-Tag');
+        $robotsHeaderTag = $this->getResponseHeader('X-Robots-Tag');
 
         if ($robotsHeaderTag) {
             Assert::assertNotContains(
