@@ -231,8 +231,6 @@ class SitemapContext extends BaseContext
     }
 
     /**
-     * @param int $randomUrlsCount
-     *
      * @throws DriverException
      * @throws InvalidOrderException
      *
