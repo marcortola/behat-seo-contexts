@@ -14,9 +14,9 @@ use Webmozart\Assert\Assert;
 
 class SitemapContext extends BaseContext
 {
-    const SITEMAP_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap.xsd';
-    const SITEMAP_XHTML_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap_xhtml.xsd';
-    const SITEMAP_INDEX_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap_index.xsd';
+    const SITEMAP_SCHEMA_FILE = __DIR__.'/../Resources/schemas/sitemap.xsd';
+    const SITEMAP_XHTML_SCHEMA_FILE = __DIR__.'/../Resources/schemas/sitemap_xhtml.xsd';
+    const SITEMAP_INDEX_SCHEMA_FILE = __DIR__.'/../Resources/schemas/sitemap_index.xsd';
 
     /**
      * @var DOMDocument
@@ -190,31 +190,80 @@ class SitemapContext extends BaseContext
         Assert::isInstanceOf($locNodes, DOMNodeList::class);
 
         foreach ($locNodes as $locNode) {
-            try {
-                $this->visit($locNode->nodeValue);
-            } catch (RouteNotFoundException $e) {
-                throw new InvalidArgumentException(
-                    sprintf(
-                        'Sitemap Url %s is not valid in Sitemap: %s. Exception: %s',
-                        $locNode->nodeValue,
-                        $this->sitemapXml->documentURI,
-                        $e->getMessage()
-                    ),
-                    0,
-                    $e
-                );
-            }
+            $this->urlIsValid($locNode);
+            $this->urlIsAlive($locNode);
+        }
+    }
 
-            Assert::eq(
-                200,
-                $this->getStatusCode(),
+    /**
+     * @throws DriverException
+     */
+    private function urlIsValid($locNode): void
+    {
+        try {
+            $this->visit($locNode->nodeValue);
+        } catch (RouteNotFoundException $e) {
+            throw new InvalidArgumentException(
                 sprintf(
-                    'Sitemap Url %s is not valid in Sitemap: %s. Response status code: %s',
+                    'Sitemap Url %s is not valid in Sitemap: %s. Exception: %s',
                     $locNode->nodeValue,
                     $this->sitemapXml->documentURI,
-                    $this->getStatusCode()
-                )
+                    $e->getMessage()
+                ),
+                0,
+                $e
             );
+        }
+    }
+
+    private function urlIsAlive($locNode): void
+    {
+        Assert::eq(
+            200,
+            $this->getStatusCode(),
+            sprintf(
+                'Sitemap Url %s is not valid in Sitemap: %s. Response status code: %s',
+                $locNode->nodeValue,
+                $this->sitemapXml->documentURI,
+                $this->getStatusCode()
+            )
+        );
+    }
+
+    /**
+     * @param int $randomUrlsCount
+     *
+     * @throws DriverException
+     * @throws InvalidOrderException
+     *
+     * @Then :randomUrlsCount random sitemap URL/URLs should be alive
+     */
+    public function randomSitemapUrlsShouldBeAlive(int $randomUrlsCount): void
+    {
+        $this->assertSitemapHasBeenRead();
+
+        $locNodes = $this->getXpathInspector()->query('//sm:urlset/sm:url/sm:loc');
+
+        Assert::isInstanceOf($locNodes, DOMNodeList::class);
+
+        $locNodesCount = $locNodes->length;
+
+        Assert::greaterThan(
+            $locNodesCount,
+            $randomUrlsCount,
+            sprintf(
+                'Sitemap %s only has %d children, minimum expected value was: %d',
+                $this->sitemapXml->documentURI,
+                $locNodesCount,
+                $randomUrlsCount
+            )
+        );
+
+        $locNodesArray = iterator_to_array($locNodes);
+        shuffle($locNodesArray);
+        for ($i = 0; $i <= $randomUrlsCount - 1; $i++) {
+            $this->urlIsValid($locNodesArray[$i]);
+            $this->urlIsAlive($locNodesArray[$i]);
         }
     }
 
