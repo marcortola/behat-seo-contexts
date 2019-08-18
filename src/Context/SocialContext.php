@@ -8,44 +8,36 @@ use Webmozart\Assert\Assert;
 class SocialContext extends BaseContext
 {
     /**
-     * @Then /^the (Twitter|Facebook) Open Graph data should not satisfy (minimum|full) requirements$/
+     * @Then /^the (Twitter|Facebook) Open Graph data should not satisfy minimum requirements$/
      */
-    public function theOpenGraphDataShouldNotSatisfyRequirements(
-        string $socialNetworkName,
-        string $requirementsType
-    ): void {
+    public function theOpenGraphDataShouldNotSatisfyRequirements(string $socialNetworkName): void
+    {
         $this->assertInverse(
-            function () use ($socialNetworkName, $requirementsType) {
-                $this->theOpenGraphDataShouldSatisfyRequirements($socialNetworkName, $requirementsType);
+            function () use ($socialNetworkName) {
+                $this->theOpenGraphDataShouldSatisfyRequirements($socialNetworkName);
             },
-            sprintf('The %s OG Data satisfies %s requirements.', $socialNetworkName, $requirementsType)
+            sprintf('The %s OG Data satisfies minimum requirements.', $socialNetworkName)
         );
     }
 
     /**
-     * @Then /^the (Twitter|Facebook) Open Graph data should satisfy (minimum|full) requirements$/
+     * @Then /^the (Twitter|Facebook) Open Graph data should not satisfy full requirements$/
      */
-    public function theOpenGraphDataShouldSatisfyRequirements(string $socialNetworkName, string $requirementsType): void
+    public function theOpenGraphDataShouldNotSatisfyFullRequirements(string $socialNetworkName): void
     {
-        if ('full' === $requirementsType) {
-            switch ($socialNetworkName) {
-                case 'Twitter':
-                    $this->validateFullTwitterOpenGraphData();
+        $this->assertInverse(
+            function () use ($socialNetworkName) {
+                $this->theOpenGraphDataShouldSatisfyFullRequirements($socialNetworkName);
+            },
+            sprintf('The %s OG Data satisfies full requirements.', $socialNetworkName)
+        );
+    }
 
-                    break;
-                case 'Facebook':
-                    $this->validateFullFacebookOpenGraphData();
-
-                    break;
-                default:
-                    throw new InvalidArgumentException(
-                        sprintf('%s open graph full validation is not allowed.', $socialNetworkName)
-                    );
-            }
-
-            return;
-        }
-
+    /**
+     * @Then /^the (Twitter|Facebook) Open Graph data should satisfy minimum requirements$/
+     */
+    public function theOpenGraphDataShouldSatisfyRequirements(string $socialNetworkName): void
+    {
         switch ($socialNetworkName) {
             case 'Twitter':
                 $this->validateTwitterOpenGraphData();
@@ -58,6 +50,27 @@ class SocialContext extends BaseContext
             default:
                 throw new InvalidArgumentException(
                     sprintf('%s open graph simple validation is not allowed.', $socialNetworkName)
+                );
+        }
+    }
+
+    /**
+     * @Then /^the (Twitter|Facebook) Open Graph data should satisfy full requirements$/
+     */
+    public function theOpenGraphDataShouldSatisfyFullRequirements(string $socialNetworkName): void
+    {
+        switch ($socialNetworkName) {
+            case 'Twitter':
+                $this->validateFullTwitterOpenGraphData();
+
+                break;
+            case 'Facebook':
+                $this->validateFullFacebookOpenGraphData();
+
+                break;
+            default:
+                throw new InvalidArgumentException(
+                    sprintf('%s open graph full validation is not allowed.', $socialNetworkName)
                 );
         }
     }
