@@ -70,11 +70,15 @@ class HTMLContext extends BaseContext
      */
     public function thePageHtml5DoctypeDeclarationShouldBeValid(): void
     {
-        $html5DoctypeMarkup = '<!doctype html>';
+        $pageContent = preg_replace(
+            '/<!--(.|\s)*?-->/',
+            '',
+            $this->getSession()->getPage()->getContent()
+        ) ?? '';
 
-        Assert::eq(
-            $html5DoctypeMarkup,
-            $this->pageDoctypeMarkup($html5DoctypeMarkup)
+        Assert::startsWith(
+            strtolower(trim($pageContent)),
+            '<!doctype html>'
         );
     }
 
@@ -87,27 +91,5 @@ class HTMLContext extends BaseContext
             [$this, 'thePageHtml5DoctypeDeclarationShouldBeValid'],
             'The page HTML5 doctype declaration should not be valid.'
         );
-    }
-
-    private function pageDoctypeMarkup(string $htmlDoctypeMarkup): string
-    {
-        $pageContent = $this->removeCodeBeforePageDoctypeMarkup(
-            $this->getSession()->getPage()->getContent(),
-            $htmlDoctypeMarkup
-        );
-
-        $pageContentLines = explode(PHP_EOL, $pageContent);
-        return trim(strtolower($pageContentLines[0]));
-    }
-
-    private function removeCodeBeforePageDoctypeMarkup(string $pageContent, string $htmlDoctypeMarkup): string
-    {
-        $htmlDoctypeMarkupPositionInPageContent = stripos($pageContent, $htmlDoctypeMarkup);
-
-        if ($htmlDoctypeMarkupPositionInPageContent != false) {
-            $pageContent = substr($pageContent, $htmlDoctypeMarkupPositionInPageContent);
-        }
-
-        return $pageContent;
     }
 }

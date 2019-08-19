@@ -107,6 +107,7 @@ Then /^(\d+) random sitemap URLs? should be alive$/
 ##### HTMLContext
 ```gherkin
 Then the page HTML markup should be valid
+Then /^the page HTML5 doctype declaration should (not |)be valid$
 ```
 ##### PerformanceContext
 ```gherkin
