@@ -7,6 +7,7 @@ use HtmlValidator\Exception\ServerException;
 use HtmlValidator\Exception\UnknownParserException;
 use HtmlValidator\Validator;
 use InvalidArgumentException;
+use Webmozart\Assert\Assert;
 
 class HTMLContext extends BaseContext
 {
@@ -62,5 +63,51 @@ class HTMLContext extends BaseContext
             [$this, 'thePageHtmlMarkupShouldBeValid'],
             'HTML markup should not be valid.'
         );
+    }
+
+    /**
+     * @Then the page HTML5 doctype declaration should be valid
+     */
+    public function thePageHtml5DoctypeDeclarationShouldBeValid(): void
+    {
+        $html5DoctypeMarkup = '<!doctype html>';
+
+        Assert::eq(
+            $html5DoctypeMarkup,
+            $this->pageDoctypeMarkup($html5DoctypeMarkup)
+        );
+    }
+
+    /**
+     * @Then the page HTML5 doctype declaration should not be valid
+     */
+    public function thePageHtml5DoctypeDeclarationShouldNotBeValid(): void
+    {
+        $this->assertInverse(
+            [$this, 'thePageHtml5DoctypeDeclarationShouldBeValid'],
+            'The page HTML5 doctype declaration should not be valid.'
+        );
+    }
+
+    private function pageDoctypeMarkup(string $htmlDoctypeMarkup): string
+    {
+        $pageContent = $this->removeCodeBeforePageDoctypeMarkup(
+            $this->getSession()->getPage()->getContent(),
+            $htmlDoctypeMarkup
+        );
+
+        $pageContentLines = explode(PHP_EOL, $pageContent);
+        return trim(strtolower($pageContentLines[0]));
+    }
+
+    private function removeCodeBeforePageDoctypeMarkup(string $pageContent, string $htmlDoctypeMarkup): string
+    {
+        $htmlDoctypeMarkupPositionInPageContent = stripos($pageContent, $htmlDoctypeMarkup);
+
+        if ($htmlDoctypeMarkupPositionInPageContent != false) {
+            $pageContent = substr($pageContent, $htmlDoctypeMarkupPositionInPageContent);
+        }
+
+        return $pageContent;
     }
 }
