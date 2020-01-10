@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace MOrtola\BehatSEOContexts\Context;
+namespace MarcOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\DriverException;
@@ -8,7 +8,7 @@ use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Symfony2Extension\Driver\KernelDriver;
 use InvalidArgumentException;
-use MOrtola\BehatSEOContexts\Exception\TimeoutException;
+use MarcOrtola\BehatSEOContexts\Exception\TimeoutException;
 
 class BaseContext extends RawMinkContext
 {

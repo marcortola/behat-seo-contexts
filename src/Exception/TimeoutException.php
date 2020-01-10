@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace MOrtola\BehatSEOContexts\Exception;
+namespace MarcOrtola\BehatSEOContexts\Exception;
 
 use Exception;
 

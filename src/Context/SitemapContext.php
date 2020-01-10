@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace MOrtola\BehatSEOContexts\Context;
+namespace MarcOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Exception\DriverException;
 use DOMDocument;
@@ -9,7 +9,7 @@ use DOMNode;
 use DOMNodeList;
 use DOMXPath;
 use InvalidArgumentException;
-use MOrtola\BehatSEOContexts\Exception\InvalidOrderException;
+use MarcOrtola\BehatSEOContexts\Exception\InvalidOrderException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Webmozart\Assert\Assert;
 

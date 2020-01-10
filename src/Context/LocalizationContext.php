@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace MOrtola\BehatSEOContexts\Context;
+namespace MarcOrtola\BehatSEOContexts\Context;
 
 use Behat\Mink\Element\NodeElement;
 use Matriphe\ISO639\ISO639;

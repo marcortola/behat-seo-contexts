@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace MOrtola\BehatSEOContexts\Context;
+namespace MarcOrtola\BehatSEOContexts\Context;
 
 use Behat\Behat\Tester\Exception\PendingException;
 use HtmlValidator\Exception\ServerException;

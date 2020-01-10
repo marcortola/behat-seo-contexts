@@ -1,9 +1,9 @@
 # Behat SEO Contexts
 
-[![Latest Version](https://img.shields.io/github/release/mortola/behat-seo-contexts.svg?style=flat-square)](https://github.com/mortola/behat-seo-contexts/releases)
-[![Build Status](https://img.shields.io/travis/mortola/behat-seo-contexts.svg?style=flat-square)](https://travis-ci.org/mortola/behat-seo-contexts)
-[![Quality Score](https://img.shields.io/scrutinizer/g/mortola/behat-seo-contexts.svg?style=flat-square)](https://scrutinizer-ci.com/g/mortola/behat-seo-contexts)
-[![Total Downloads](https://img.shields.io/packagist/dt/mortola/behat-seo-contexts.svg?style=flat-square)](https://packagist.org/packages/mortola/behat-seo-contexts)
+[![Latest Version](https://img.shields.io/github/release/marcortola/behat-seo-contexts.svg?style=flat-square)](https://github.com/marcortola/behat-seo-contexts/releases)
+[![Build Status](https://img.shields.io/travis/marcortola/behat-seo-contexts.svg?style=flat-square)](https://travis-ci.org/marcortola/behat-seo-contexts)
+[![Quality Score](https://img.shields.io/scrutinizer/g/marcortola/behat-seo-contexts.svg?style=flat-square)](https://scrutinizer-ci.com/g/marcortola/behat-seo-contexts)
+[![Total Downloads](https://img.shields.io/packagist/dt/marcortola/behat-seo-contexts.svg?style=flat-square)](https://packagist.org/packages/marcortola/behat-seo-contexts)
 
 **Behat extension for testing some On-Page SEO factors.**
 
@@ -17,7 +17,7 @@ Includes contexts for testing:
 * redirects
 * sitemap validation (inc. multilanguage)
 * HTML validation
-* assets performance 
+* assets performance
 * more...
 
 Installation
@@ -35,7 +35,7 @@ Basic requirements:
 2. Execute:
 
 ```
-$ composer require mortola/behat-seo-contexts --dev
+$ composer require marcortola/behat-seo-contexts --dev
 ```
 
 3. Add the Context you need to `behat.yml`:
@@ -47,15 +47,15 @@ default:
     suites:
         default:
           contexts:
-            - MOrtola\BehatSEOContexts\Context\MetaContext
-            - MOrtola\BehatSEOContexts\Context\LocalizationContext
-            - MOrtola\BehatSEOContexts\Context\RobotsContext
-            - MOrtola\BehatSEOContexts\Context\IndexationContext
-            - MOrtola\BehatSEOContexts\Context\RedirectContext
-            - MOrtola\BehatSEOContexts\Context\SitemapContext
-            - MOrtola\BehatSEOContexts\Context\HTMLContext
-            - MOrtola\BehatSEOContexts\Context\PerformanceContext
-            - MOrtola\BehatSEOContexts\Context\SocialContext
+            - MarcOrtola\BehatSEOContexts\Context\MetaContext
+            - MarcOrtola\BehatSEOContexts\Context\LocalizationContext
+            - MarcOrtola\BehatSEOContexts\Context\RobotsContext
+            - MarcOrtola\BehatSEOContexts\Context\IndexationContext
+            - MarcOrtola\BehatSEOContexts\Context\RedirectContext
+            - MarcOrtola\BehatSEOContexts\Context\SitemapContext
+            - MarcOrtola\BehatSEOContexts\Context\HTMLContext
+            - MarcOrtola\BehatSEOContexts\Context\PerformanceContext
+            - MarcOrtola\BehatSEOContexts\Context\SocialContext
 
 ```
 ### Featured steps
