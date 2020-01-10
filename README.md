@@ -3,7 +3,6 @@
 [![Latest Version](https://img.shields.io/github/release/marcortola/behat-seo-contexts.svg?style=flat-square)](https://github.com/marcortola/behat-seo-contexts/releases)
 [![Build Status](https://img.shields.io/travis/marcortola/behat-seo-contexts.svg?style=flat-square)](https://travis-ci.org/marcortola/behat-seo-contexts)
 [![Quality Score](https://img.shields.io/scrutinizer/g/marcortola/behat-seo-contexts.svg?style=flat-square)](https://scrutinizer-ci.com/g/marcortola/behat-seo-contexts)
-[![Total Downloads](https://img.shields.io/packagist/dt/marcortola/behat-seo-contexts.svg?style=flat-square)](https://packagist.org/packages/marcortola/behat-seo-contexts)
 
 **Behat extension for testing some On-Page SEO factors.**
 
