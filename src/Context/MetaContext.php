@@ -271,4 +271,105 @@ class MetaContext extends BaseContext
             'Meta description does exist'
         );
     }
+
+    /**
+     * @Then the page meta robots should be nofollow
+     */
+    public function thePageShouldBeNofollow(): void
+    {
+        $metaRobotsElement = $this->getMetaRobotsElement();
+
+        Assert::notNull(
+            $metaRobotsElement,
+            'Meta robots does not exist.'
+        );
+
+        Assert::contains(
+            strtolower($metaRobotsElement->getAttribute('content') ?? ''),
+            'nofollow',
+            sprintf(
+                'Url %s is not nofollow: %s',
+                $this->getCurrentUrl(),
+                $metaRobotsElement->getHtml()
+            )
+        );
+    }
+
+    /**
+     * @Then the page meta robots should not be nofollow
+     */
+    public function thePageShouldNotBeNofollow(): void
+    {
+        $this->assertInverse(
+            [$this, 'thePageShouldBeNofollow'],
+            'Page meta robots is nofollow.'
+        );
+    }
+
+    private function getImageElement(): ?NodeElement
+    {
+        return $this->getSession()->getPage()->find('css', 'img');
+    }
+
+    /**
+     * @Then the images should have alt text
+     */
+    public function theImagesShouldHaveAltText(): void
+    {
+
+        $imageElements = $this->getImageElement();
+
+        foreach($imageElements as $imageElement)
+        {
+          Assert::notNull($imageElement);
+          $imageAlt = $imageElement->getAttribute('alt');
+          Assert::notEmpty($imageAlt,'Alt Text is empty for image: ' + $imageElement);
+        }
+    }
+
+    private function getViewportElement(): ?NodeElement
+    {
+        return $this->getSession()->getPage()->find(
+            'xpath',
+            '//head/meta[@name="viewport"]'
+          );
+    }
+
+    /**
+     * @Then the site should be responsive
+     */
+    public function theSiteShouldBeResponsive(): void
+    {
+
+        $viewportElement = $this->getViewportElement();
+
+        Assert::notNull($viewportElement);
+        $expectedViewportContent = "width=device-width, initial-scale=1";
+
+        $viewportContent = $viewportElement->getAttribute('content');
+        Assert::eq(
+            $expectedViewportContent,
+            $viewportContent,
+            'Site does not support responsive design'
+        );
+    }
+
+    /**
+     * @Then the site should not be responsive
+     */
+    public function theSiteShouldNotBeResponsive(): void
+    {
+
+        $viewportElement = $this->getViewportElement();
+
+        Assert::notNull($viewportElement);
+        $expectedViewportContent = "width=device-width, initial-scale=1";
+
+        $viewportContent = $viewportElement->getAttribute('content');
+        Assert::notEq(
+            $expectedViewportContent,
+            $viewportContent,
+            'Site supports responsive design'
+        );
+    }
 }
