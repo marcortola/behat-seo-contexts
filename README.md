@@ -17,6 +17,8 @@ Includes contexts for testing:
 * sitemap validation (inc. multilanguage)
 * HTML validation
 * assets performance
+* accessibility
+* UX
 * more...
 
 Installation
@@ -55,7 +57,8 @@ default:
             - MarcOrtola\BehatSEOContexts\Context\HTMLContext
             - MarcOrtola\BehatSEOContexts\Context\PerformanceContext
             - MarcOrtola\BehatSEOContexts\Context\SocialContext
-
+            - MarcOrtola\BehatSEOContexts\Context\AccessibilityContext
+            - MarcOrtola\BehatSEOContexts\Context\UXContext
 ```
 ### Featured steps
 ##### MetaContext
@@ -121,6 +124,15 @@ Then critical CSS code should exist in head
 ##### SocialContext
 ```gherkin
 Then /^the (Twitter|Facebook) Open Graph data should satisfy (minimum|full) requirements$/
+```
+##### AccessibilityContext
+```gherkin
+Then the images should have alt text
+```
+##### UXContext
+```gherkin
+Then the site should be responsive
+Then the site should not be responsive
 ```
 
 ### Examples
