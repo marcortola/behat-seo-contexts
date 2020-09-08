@@ -61,3 +61,21 @@ Feature: Meta feature
 
     When I am on "/meta/robots/without-meta-robots.html"
     Then the page meta robots should not be noindex
+
+    When I am on "/meta/robots/bad-meta-robots.html"
+    Then the page meta robots should not be nofollow
+
+    When I am on "/meta/robots/meta-robots-index-follow.html"
+    Then the page meta robots should not be nofollow
+
+    When I am on "/meta/robots/meta-robots-index-nofollow.html"
+    Then the page meta robots should be nofollow
+
+    When I am on "/meta/robots/meta-robots-noindex-follow.html"
+    Then the page meta robots should not be nofollow
+
+    When I am on "/meta/robots/meta-robots-noindex-nofollow.html"
+    Then the page meta robots should be nofollow
+
+    When I am on "/meta/robots/without-meta-robots.html"
+    Then the page meta robots should not be nofollow
