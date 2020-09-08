@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MarcOrtola\BehatSEOContexts\Context;
 
@@ -7,48 +9,49 @@ use Webmozart\Assert\Assert;
 
 class UXContext extends BaseContext
 {
-  /**
-   * @Then the site should be responsive
-   */
-  public function theSiteShouldBeResponsive(): void
-  {
+    public const EXPECTED_VIEWPORT = "width=device-width, initial-scale=1";
 
-      $viewportElement = $this->getViewportElement();
+    /**
+     * @Then the site should be responsive
+     */
+    public function theSiteShouldBeResponsive(): void
+    {
+        $viewportContent = $this->getViewportElement()->getAttribute('content');
 
-      Assert::notNull($viewportElement, 'Site does not support responsive design');
-      $expectedViewportContent = "width=device-width, initial-scale=1";
-
-      $viewportContent = $viewportElement->getAttribute('content');
-      Assert::eq(
-          $expectedViewportContent,
-          $viewportContent,
-          'Site does not support responsive design'
-      );
-  }
-
-  /**
-   * @Then the site should not be responsive
-   */
-  public function theSiteShouldNotBeResponsive(): void
-  {
-      $viewportElement = $this->getViewportElement();
-
-      Assert::null($viewportElement);
-      $expectedViewportContent = "width=device-width, initial-scale=1";
-
-      $viewportContent = $viewportElement->getAttribute('content');
-      Assert::notEq(
-          $expectedViewportContent,
-          $viewportContent,
-          'Site supports responsive design'
-      );
-  }
-
-  private function getViewportElement(): ?NodeElement
-  {
-      return $this->getSession()->getPage()->find(
-          'xpath',
-          '//head/meta[@name="viewport"]'
+        Assert::eq(
+            self::EXPECTED_VIEWPORT,
+            $viewportContent,
+            'Site does not support responsive design'
         );
-  }
+    }
+
+    /**
+     * @Then the site should not be responsive
+     */
+    public function theSiteShouldNotBeResponsive(): void
+    {
+        try {
+            $viewportContent = $this->getViewportElement()->getAttribute('content');
+        } catch (\InvalidArgumentException $e) {
+            return;
+        }
+
+        Assert::notEq(
+            self::EXPECTED_VIEWPORT,
+            $viewportContent,
+            'Site supports responsive design'
+        );
+    }
+
+    private function getViewportElement(): NodeElement
+    {
+        $viewportElement = $this->getSession()->getPage()->find(
+            'xpath',
+            '//head/meta[@name="viewport"]'
+        );
+
+        Assert::notNull($viewportElement);
+
+        return $viewportElement;
+    }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MarcOrtola\BehatSEOContexts\Context;
 
@@ -10,16 +12,16 @@ use Webmozart\Assert\Assert;
 
 class PerformanceContext extends BaseContext
 {
-    const RES_EXT = [
-        'PNG'             => 'png',
-        'HTML'            => 'html',
-        'JPEG'            => 'jpeg',
-        'GIF'             => 'gif',
-        'ICO'             => 'ico',
-        'JAVASCRIPT'      => 'js',
-        'CSS'             => 'css',
+    public const RES_EXT = [
+        'PNG' => 'png',
+        'HTML' => 'html',
+        'JPEG' => 'jpeg',
+        'GIF' => 'gif',
+        'ICO' => 'ico',
+        'JAVASCRIPT' => 'js',
+        'CSS' => 'css',
         'CSS_INLINE_HEAD' => 'css-inline-head',
-        'CSS_LINK_HEAD'   => 'css-link-head',
+        'CSS_LINK_HEAD' => 'css-link-head',
     ];
 
     /**

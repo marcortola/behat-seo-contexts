@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MarcOrtola\BehatSEOContexts\Context;
 
@@ -27,7 +29,7 @@ class IndexationContext extends BaseContext
 
         if ($env instanceof InitializedContextEnvironment) {
             $this->robotsContext = $env->getContext(RobotsContext::class);
-            $this->metaContext   = $env->getContext(MetaContext::class);
+            $this->metaContext = $env->getContext(MetaContext::class);
         }
     }
 

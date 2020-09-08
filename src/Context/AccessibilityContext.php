@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MarcOrtola\BehatSEOContexts\Context;
 
@@ -12,18 +14,19 @@ class AccessibilityContext extends BaseContext
      */
     public function theImagesShouldHaveAltText(): void
     {
-        $imageElements = $this->getImageElement();
-
-        foreach($imageElements as $imageElement)
-        {
-          Assert::notNull($imageElement);
-          $imageAlt = $imageElement->getAttribute('alt');
-          Assert::notEmpty($imageAlt,'Alt Text is empty for image: ' + $imageElement);
+        foreach ($this->getImageElements() as $imageElement) {
+            Assert::notEmpty(
+                $imageElement->getAttribute('alt'),
+                'Alt Text is empty for image: ' . $imageElement->getHtml()
+            );
         }
     }
 
-    private function getImageElement(): ?NodeElement
+    /**
+     * @return NodeElement[]
+     */
+    private function getImageElements(): array
     {
-        return $this->getSession()->getPage()->find('css', 'img');
+        return $this->getSession()->getPage()->findAll('css', 'img');
     }
 }

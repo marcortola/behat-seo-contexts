@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MarcOrtola\BehatSEOContexts\Context;
 
@@ -305,5 +307,4 @@ class MetaContext extends BaseContext
             'Page meta robots is nofollow.'
         );
     }
-
 }

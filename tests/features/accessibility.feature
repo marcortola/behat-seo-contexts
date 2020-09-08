@@ -1,4 +1,4 @@
-@accessibility
+@ACCESSIBILITY
 Feature: Accessibility features
 
   Scenario: Testing image alt tag

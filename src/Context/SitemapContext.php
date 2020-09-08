@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MarcOrtola\BehatSEOContexts\Context;
 
@@ -15,9 +17,9 @@ use Webmozart\Assert\Assert;
 
 class SitemapContext extends BaseContext
 {
-    const SITEMAP_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap.xsd';
-    const SITEMAP_XHTML_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap_xhtml.xsd';
-    const SITEMAP_INDEX_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap_index.xsd';
+    public const SITEMAP_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap.xsd';
+    public const SITEMAP_XHTML_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap_xhtml.xsd';
+    public const SITEMAP_INDEX_SCHEMA_FILE = __DIR__ . '/../Resources/schemas/sitemap_index.xsd';
 
     /**
      * @var DOMDocument
@@ -56,8 +58,12 @@ class SitemapContext extends BaseContext
             $childSitemapUrl
         );
 
+        $sitemapChildren = $this->getXpathInspector()->query($xpathExpression);
+
+        Assert::notFalse($sitemapChildren);
+
         Assert::greaterThanEq(
-            $this->getXpathInspector()->query($xpathExpression)->length,
+            $sitemapChildren->length,
             1,
             sprintf(
                 'Sitemap index %s has not child sitemap %s',
@@ -97,10 +103,13 @@ class SitemapContext extends BaseContext
     {
         $this->assertSitemapHasBeenRead();
 
-        $sitemapChildrenCount = $this
+        $sitemapChildren = $this
             ->getXpathInspector()
-            ->query('/*[self::sm:sitemapindex or self::sm:urlset]/*[self::sm:sitemap or self::sm:url]/sm:loc')
-            ->length;
+            ->query('/*[self::sm:sitemapindex or self::sm:urlset]/*[self::sm:sitemap or self::sm:url]/sm:loc');
+
+        Assert::notFalse($sitemapChildren);
+
+        $sitemapChildrenCount = $sitemapChildren->length;
 
         Assert::eq(
             $expectedChildrenCount,
@@ -127,6 +136,8 @@ class SitemapContext extends BaseContext
 
         $urlsNodes = $this->getXpathInspector()->query('//sm:urlset/sm:url');
 
+        Assert::notFalse($urlsNodes);
+
         /** @var DOMElement $urlNode */
         foreach ($urlsNodes as $urlNode) {
             $urlElement = $urlNode->getElementsByTagName('loc')->item(0);
@@ -143,6 +154,8 @@ class SitemapContext extends BaseContext
                     $alternateLinkNodes = $this->getXpathInspector()->query(
                         sprintf('//sm:urlset/sm:url/sm:loc[text()="%s"]', $alternateLinkHref)
                     );
+
+                    Assert::notFalse($alternateLinkNodes);
 
                     Assert::greaterThanEq(
                         $alternateLinkNodes->length,
@@ -241,10 +254,11 @@ class SitemapContext extends BaseContext
     {
         $this->assertSitemapHasBeenRead();
 
-        $locNodes      = $this->getXpathInspector()->query('//sm:urlset/sm:url/sm:loc');
-        $locNodesArray = iterator_to_array($locNodes ?? []);
+        $locNodes = $this->getXpathInspector()->query('//sm:urlset/sm:url/sm:loc');
 
-        Assert::isInstanceOf($locNodes, DOMNodeList::class);
+        Assert::notFalse($locNodes);
+
+        $locNodesArray = iterator_to_array($locNodes);
 
         $locNodesCount = count($locNodesArray);
 

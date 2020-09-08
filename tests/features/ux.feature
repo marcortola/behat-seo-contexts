@@ -1,4 +1,4 @@
-@ux
+@UX
 Feature: User Experience features
 
   Scenario: Testing responsive design

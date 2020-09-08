@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace MarcOrtola\BehatSEOContexts\Context;
 
@@ -11,7 +13,7 @@ use Webmozart\Assert\Assert;
 
 class HTMLContext extends BaseContext
 {
-    const VALIDATION_SERVICES = [
+    public const VALIDATION_SERVICES = [
         Validator::DEFAULT_VALIDATOR_URL,
         'https://validator.nu/',
         'https://validator.w3.org/nu/',
@@ -22,14 +24,14 @@ class HTMLContext extends BaseContext
      */
     public function thePageHtmlMarkupShouldBeValid(): void
     {
-        $validated        = false;
+        $validated = false;
         $validationErrors = [];
 
         foreach (self::VALIDATION_SERVICES as $validatorService) {
             try {
-                $validator        = new Validator($validatorService);
-                $validatorResult  = $validator->validateDocument($this->getSession()->getPage()->getContent());
-                $validated        = true;
+                $validator = new Validator($validatorService);
+                $validatorResult = $validator->validateDocument($this->getSession()->getPage()->getContent());
+                $validated = true;
                 $validationErrors = $validatorResult->getErrors();
                 break;
             } catch (ServerException | UnknownParserException $e) {
