@@ -14,6 +14,8 @@ default:
         - MarcOrtola\BehatSEOContexts\Context\HTMLContext
         - MarcOrtola\BehatSEOContexts\Context\PerformanceContext
         - MarcOrtola\BehatSEOContexts\Context\SocialContext
+        - MarcOrtola\BehatSEOContexts\Context\AccessibilityContext
+        - MarcOrtola\BehatSEOContexts\Context\UXContext
         - Behat\MinkExtension\Context\MinkContext
   extensions:
     Behat\MinkExtension:

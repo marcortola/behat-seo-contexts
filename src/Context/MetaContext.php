@@ -271,4 +271,39 @@ class MetaContext extends BaseContext
             'Meta description does exist'
         );
     }
+
+    /**
+     * @Then the page meta robots should be nofollow
+     */
+    public function thePageShouldBeNofollow(): void
+    {
+        $metaRobotsElement = $this->getMetaRobotsElement();
+
+        Assert::notNull(
+            $metaRobotsElement,
+            'Meta robots does not exist.'
+        );
+
+        Assert::contains(
+            strtolower($metaRobotsElement->getAttribute('content') ?? ''),
+            'nofollow',
+            sprintf(
+                'Url %s is not nofollow: %s',
+                $this->getCurrentUrl(),
+                $metaRobotsElement->getHtml()
+            )
+        );
+    }
+
+    /**
+     * @Then the page meta robots should not be nofollow
+     */
+    public function thePageShouldNotBeNofollow(): void
+    {
+        $this->assertInverse(
+            [$this, 'thePageShouldBeNofollow'],
+            'Page meta robots is nofollow.'
+        );
+    }
+
 }
