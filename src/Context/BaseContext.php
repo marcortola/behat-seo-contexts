@@ -101,12 +101,6 @@ class BaseContext extends RawMinkContext
             $url = sprintf('%s%s', $this->webUrl, $url);
         }
 
-        if (false === filter_var($url, FILTER_VALIDATE_URL)) {
-            throw new InvalidArgumentException(
-                sprintf('%s is not a valid URL', $url)
-            );
-        }
-
         return $url;
     }
 
