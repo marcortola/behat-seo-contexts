@@ -6,6 +6,8 @@ namespace MarcOrtola\BehatSEOContexts\Context;
 
 use Behat\Behat\Context\Environment\InitializedContextEnvironment;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
+use Behat\Behat\Hook\Scope\ScenarioScope;
+use Behat\Testwork\Environment\Environment;
 use Webmozart\Assert\Assert;
 
 class IndexationContext extends BaseContext
@@ -27,7 +29,7 @@ class IndexationContext extends BaseContext
     {
         $env = $scope->getEnvironment();
 
-        if ($env instanceof InitializedContextEnvironment) {
+        if ($this->isInitialized($env)) {
             $this->robotsContext = $env->getContext(RobotsContext::class);
             $this->metaContext = $env->getContext(MetaContext::class);
         }
@@ -64,4 +66,14 @@ class IndexationContext extends BaseContext
             );
         }
     }
+
+    private function isInitialized(Environment $env): bool
+    {
+        if ($env instanceof InitializedContextEnvironment) {
+            return true;
+        }
+
+        return class_exists('\FriendsOfBehat\SymfonyExtension\Context\Environment\InitializedSymfonyExtensionEnvironment') && is_a($env, '\FriendsOfBehat\SymfonyExtension\Context\Environment\InitializedSymfonyExtensionEnvironment');
+    }
 }
+
