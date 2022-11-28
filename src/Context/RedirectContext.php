@@ -7,7 +7,7 @@ namespace MarcOrtola\BehatSEOContexts\Context;
 use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use InvalidArgumentException;
-use Symfony\Component\BrowserKit\Client;
+use Symfony\Component\BrowserKit\AbstractBrowser;
 use Webmozart\Assert\Assert;
 
 class RedirectContext extends BaseContext
@@ -37,7 +37,7 @@ class RedirectContext extends BaseContext
     /**
      * @throws UnsupportedDriverActionException
      */
-    private function getClient(): Client
+    private function getClient(): AbstractBrowser
     {
         $this->supportsDriver(BrowserKitDriver::class);
 
