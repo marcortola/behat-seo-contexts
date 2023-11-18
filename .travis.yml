@@ -12,14 +12,16 @@ php:
 matrix:
   include:
     - php: 7.1
-      env: DEPENDENCIES='lowest'
+      env: COMPOSER_PREFER="--prefer-lowest --prefer-stable"
+    - php: 7.2
+      env: COMPOSER_PREFER="--prefer-stable"
+    - php: 7.3
+      env: COMPOSER_PREFER="--prefer-stable"  
 
 before_script:
   - composer serve &> /dev/null &
   - cp behat.yml.dist behat.yml
-  - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer install --no-interaction
-  - if [ "$DEPENDENCIES" == "lowest" ]; then composer update --prefer-lowest --prefer-stable; fi;
-  - if [ "$DEPENDENCIES" != "lowest" ]; then composer update --prefer-stable; fi;
+  - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer install --no-interaction  
 
 script:
   - composer check-static
